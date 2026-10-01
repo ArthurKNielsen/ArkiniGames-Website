@@ -1,5 +1,7 @@
 # Arkini Games — website
 
+**Live site:** https://enspecielperson.github.io/arkinigames-website/
+
 The official site for Arkini Games, a one-person studio in Aarhus, Denmark.
 
 The site works like a PS1 that boots. First you get a short BIOS screen, then a
