@@ -30,6 +30,7 @@
   }
   function pad2(n) { return (n < 10 ? "0" : "") + n; }
   function hostOf(url) { try { return new URL(url).host.replace(/^www\./, ""); } catch (e) { return url; } }
+  function storeName(url) { return /steampowered\.com/.test(url || "") ? "Steam" : /itch\.io/.test(url || "") ? "itch.io" : hostOf(url); }
   function frames(icon) { return Array.isArray(icon) ? icon : icon ? [icon] : []; }
   function gameById(id) { return GAMES.filter(function (g) { return g.id === id; })[0]; }
   function onCleanup(fn) { cleanups.push(fn); }
@@ -144,7 +145,7 @@
         "</ul>" +
         '<div class="stage__cta">' +
           '<a class="btn btn--primary" href="#/game/' + esc(g.id) + '"><i class="pad pad--x"></i>LOAD ' + esc(g.title) + "</a>" +
-          (l.demo ? '<a class="btn" href="' + esc(l.demo) + '" target="_blank" rel="noopener">PLAY DEMO &gt;&gt;</a>' : "") +
+          (l.demo ? '<a class="btn" href="' + esc(l.demo) + '" target="_blank" rel="noopener">' + esc(l.demoLabel || "PLAY THE DEMO") + " &gt;&gt;</a>" : "") +
         "</div>";
     }
     if (t.type === "teaser") {
@@ -218,7 +219,7 @@
             '<span class="mc__free">' + card.free + "/" + card.total + " FREE</span>" +
           "</div>" +
           '<ul class="hub__links">' +
-            '<li><a class="btn" href="' + esc(SITE.links.itch) + '" target="_blank" rel="noopener">ITCH.IO</a></li>' +
+            (SITE.links.steam ? '<li><a class="btn" href="' + esc(SITE.links.steam) + '" target="_blank" rel="noopener">STEAM</a></li>' : "") +
             '<li><a class="btn" href="' + esc(SITE.links.youtube) + '" target="_blank" rel="noopener">YOUTUBE @' + esc(yt) + "</a></li>" +
             '<li><a class="btn" href="#/about">CONTACT</a></li>' +
           "</ul>" +
@@ -333,7 +334,8 @@
           '<button class="trailer__facade" type="button" aria-label="Play the ' + esc(g.title) + ' trailer">' +
             (g.trailer.poster ? '<img src="' + esc(g.trailer.poster) + '" alt="" loading="lazy" width="1280" height="720">' : "") +
             '<span class="trailer__play"><i class="pad pad--x"></i>PLAY TRAILER</span>' +
-          "</button></div>";
+          "</button></div>" +
+          (g.trailer.steam ? '<p class="trailer__more"><a href="' + esc(g.trailer.steam) + '" target="_blank" rel="noopener">Watch the official trailer on Steam &gt;&gt;</a></p>' : "");
       } else if (id === "screens") {
         body = '<div class="viewer">' +
             '<button class="viewer__big" type="button" aria-label="Open screenshot full size">' +
@@ -359,8 +361,9 @@
             '<a class="btn btn--big btn--primary" href="' + esc(links.demo) + '" target="_blank" rel="noopener"><i class="pad pad--x"></i>YES: ' + esc(links.demoLabel || "PLAY THE DEMO") + "</a>" +
             (noTarget ? '<a class="btn" href="#/game/' + esc(g.id) + "/" + noTarget + '" data-go="' + noTarget + '">NO</a>' : "") +
           "</div>" +
-          '<p class="cont__meta">FREE · ' + esc((g.platforms || []).join(" / ").toUpperCase()) + " · " + esc(hostOf(links.demo).toUpperCase()) + "</p>" +
-          "</div>";
+          '<p class="cont__meta">' + esc([(g.platforms || []).join(" / "), storeName(links.demo)].filter(Boolean).join(" · ").toUpperCase()) + "</p>" +
+          "</div>" +
+          (links.steamWidget ? '<iframe class="steam-widget" src="' + esc(links.steamWidget) + '" title="' + esc(g.title) + ' on Steam" loading="lazy" frameborder="0"></iframe>' : "");
       } else if (id === "devlog") {
         body = '<div class="devlog"><p>' + esc(links.devlogText || "Follow development on YouTube.") + "</p>" +
           '<a class="btn" href="' + esc(links.devlog) + '" target="_blank" rel="noopener">WATCH THE DEVLOG <span aria-hidden="true">&gt;&gt;</span></a></div>';
@@ -473,8 +476,24 @@
     // Trailer facade: no YouTube iframe until asked for.
     var facade = $(".trailer__facade", screen);
     if (facade) facade.addEventListener("click", function () {
-      var id = youtubeId(g.trailer.youtube);
       var box = facade.parentNode;
+      if (g.trailer.video) {
+        FX.sound.select();
+        var srcs = [].concat(g.trailer.video).map(function (u) {
+          var type = /\.webm$/i.test(u) ? "video/webm" : /\.mp4$/i.test(u) ? "video/mp4" : "";
+          return '<source src="' + esc(u) + '"' + (type ? ' type="' + type + '"' : "") + ">";
+        }).join("");
+        box.innerHTML = '<video' + (g.trailer.poster ? ' poster="' + esc(g.trailer.poster) + '"' : "") +
+          ' controls autoplay playsinline preload="auto">' + srcs + "</video>";
+        var vid = $("video", box);
+        // The trailer has its own sound: pause the site music while it plays.
+        vid.addEventListener("play", function () { FX.music.pause(); });
+        vid.addEventListener("pause", function () { FX.music.resume(); });
+        vid.addEventListener("ended", function () { FX.music.resume(); });
+        onCleanup(function () { vid.pause(); FX.music.resume(); });
+        return;
+      }
+      var id = youtubeId(g.trailer.youtube);
       if (!id) {
         FX.sound.error();
         FX.sound.staticBurst(0.8);
@@ -608,7 +627,7 @@
           "<dt>DISCS</dt><dd>" + GAMES.length + "</dd>" +
           "<dt>SYSTEM</dt><dd>" + esc(((($(".bar__region") || {}).textContent || "").match(/BUILD \d+/) || ["BUILD ?"])[0]) + "</dd>" +
           '<dt>CONTACT</dt><dd><a href="mailto:' + esc(SITE.email) + '">' + esc(SITE.email) + "</a></dd>" +
-          '<dt>ITCH.IO</dt><dd><a href="' + esc(SITE.links.itch) + '" target="_blank" rel="noopener">' + esc(hostOf(SITE.links.itch)) + "</a></dd>" +
+          (SITE.links.steam ? '<dt>STEAM</dt><dd><a href="' + esc(SITE.links.steam) + '" target="_blank" rel="noopener">KRAVN on Steam</a></dd>' : "") +
           '<dt>YOUTUBE</dt><dd><a href="' + esc(SITE.links.youtube) + '" target="_blank" rel="noopener">@' + esc(SITE.links.youtube.split("@")[1] || "") + "</a></dd>" +
         "</dl>" +
         '<div class="config__about">' + (SITE.about || []).map(function (p) { return "<p>" + esc(p) + "</p>"; }).join("") + "</div>" +

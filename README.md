@@ -65,10 +65,11 @@ Games show up on the memory card in the order they're listed.
 | `icon` | 16×16 PNG, or an array of up to 3 frames (they animate). |
 | `cover` | Square cover art, shown in the jewel case and spun on the loading screen. |
 | `theme` | Colours for this game's page (see below). |
-| `trailer` | `{ youtube, poster }`. `youtube` takes any YouTube URL or bare video ID. |
+| `trailer` | `{ video, youtube, poster, steam }`. `video` is a local .webm/.mp4 (or a list of both, best first) that plays right on the page (the site music pauses while it plays). Or use `youtube` with any YouTube URL or video ID. `steam` adds a "watch the official trailer on Steam" link. |
 | `screenshots` | Array of `{ src, alt }`. Always write a real `alt`. |
 | `features` | Array of `{ title, text }`. Keep them short. |
-| `links.demo` / `links.demoLabel` | The big play button. |
+| `links.demo` / `links.demoLabel` | The big main button (KRAVN: the Steam page, "WISHLIST ON STEAM"). |
+| `links.steamWidget` | Optional `https://store.steampowered.com/widget/<appid>/`: shows Steam's own wishlist/buy box on the page. |
 | `links.devlog` / `links.devlogText` | Devlog link + one line about it. |
 | `signup.pitch` | Line above the email form. |
 | `music` | Background music for this game's page: either built-in synth settings like `{ bpm: 100, root: 45, drums: 1 }` or your own looping file, e.g. `"assets/music/kravn.ogg"`. |
@@ -106,24 +107,20 @@ Any key you leave out falls back to the site theme in `site.theme`. Tip: pick
 colours with an eyedropper on your actual screenshots. Keep `ink` and `dim`
 readable on `bg`.
 
-## Swapping placeholder images
+## KRAVN's images and video
 
-Every placeholder says what it is and its size right on the image. Replace
-the file with yours. You can keep the same name, or change the path in
-`games.js`:
+KRAVN uses real footage now (pulled from the "KRAVN 21 - Entire Game Redesign"
+gameplay video). Replace any of these with official art whenever you like:
 
 | file | size | notes |
 |---|---|---|
-| `assets/games/kravn/shot-01..06-1280x720.png` | 1280×720 | JPG is fine too (and smaller) |
-| `assets/games/kravn/trailer-poster-1280x720.png` | 1280×720 | shown before the trailer loads |
-| `assets/games/kravn/cover-600x600.png` | 600×600 | square, like a PAL jewel case |
-| `assets/games/kravn/icon-16x16-f1..f3.png` | 16×16 | save icon frames, transparent PNG |
+| `assets/games/kravn/shot-01..08-1280x720.jpg` | 1280×720 | screenshots, JPG ~80 quality |
+| `assets/games/kravn/trailer-gameplay.webm` + `.mp4` | 1280×720 | ~30s, same clip in both formats, keep each under ~8 MB |
+| `assets/games/kravn/trailer-poster-1280x720.jpg` | 1280×720 | shown before the trailer plays |
+| `assets/games/kravn/cover-600x600.jpg` | 600×600 | title-screen logo over the opening shot |
+| `assets/games/kravn/icon-16x16-f1..f3.png` | 16×16 | save icon frames (the raven) |
 | `assets/og/og-image-1200x630.png` | 1200×630 | link preview on Discord/Twitter/etc. |
 | `assets/favicon-32x32.png` | 32×32 | browser tab icon |
-
-Keep screenshots under ~150 KB each (JPG quality ~80 at 1280×720 is plenty).
-The gallery thumbnails are dithered down to PS1-style 15-bit colour in the
-browser, so you don't need to fake that in the files.
 
 ## Things to replace before launch
 
@@ -131,8 +128,8 @@ All in `js/games.js` unless noted:
 
 - `site.email`: placeholder `hello@arkinigames.com`.
 - `site.founded`: placeholder year.
-- `trailer.youtube`: currently `VIDEO_ID_HERE`. Until it's a real video,
-  clicking the trailer shows a NO SIGNAL screen.
+- KRAVN's status says "COMING TO STEAM" and the button says "WISHLIST ON
+  STEAM". Change `statusLabel` / `links.demoLabel` when it's out.
 - `features`: the bullet copy is a first draft. Rewrite it in your words.
 - **`index.html`**: the `og:url`, `og:image` and `twitter:image` tags use
   `https://arkinigames.com/`. Change that to wherever the site actually lives.

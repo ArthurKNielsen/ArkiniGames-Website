@@ -254,6 +254,7 @@
 
     play: function (spec) {
       Music.queued = spec;
+      if (Music.held) return;
       if (!musOn || !unlocked || !ac()) return;
       var key = typeof spec === "string" && !SONGS[spec] ? "file:" + spec : JSON.stringify(spec);
       if (Music.running && key === Music.key) return;
@@ -361,6 +362,9 @@
     },
     // "menu", "game", "error", a song object ({ bpm, root, ... }) or a file URL
     play: function (spec) { Music.play(spec || "menu"); },
+    // Hold the music (e.g. while a trailer with its own sound plays), then bring it back.
+    pause: function () { if (Music.running) { Music.halt(); Music.held = true; } },
+    resume: function () { if (Music.held) { Music.held = false; Music.key = null; if (musOn && Music.queued) Music.play(Music.queued); } },
     state: function () { return { running: Music.running, track: Music.key, audio: ctx ? ctx.state : "locked" }; }
   };
 })();

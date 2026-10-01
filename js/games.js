@@ -15,7 +15,7 @@ window.ARKINI = {
     email: "hello@arkinigames.com", // PLACEHOLDER: swap for your real address
     founded: "2024",                // PLACEHOLDER: the year you started
     links: {
-      itch: "https://arkinigames.itch.io",
+      steam: "https://store.steampowered.com/app/5088220/KRAVN/",
       youtube: "https://www.youtube.com/@arkinigames"
     },
 
@@ -26,7 +26,8 @@ window.ARKINI = {
     // Lines for the news ticker at the bottom of the home screen.
     // Leave empty to show each game's status instead.
     news: [
-      "KRAVN demo out now on itch.io",
+      "KRAVN: wishlist now on Steam",
+      "Sector 1: The Long Fall",
       "New devlogs on YouTube: @arkinigames",
       "Made in Aarhus, Denmark"
     ],
@@ -60,7 +61,7 @@ window.ARKINI = {
     about: [
       "Arkini Games is one person in Aarhus, Denmark, making the kind of games that used to come in a jewel case with a scratched disc and a manual you actually read.",
       "Low poly, loud, a bit wrong on purpose. Everything here is built by hand, mostly after dark.",
-      "Press, collabs, bug reports, or you just want to say the demo slapped: send an email."
+      "Press, collabs, bug reports, or you just want to say KRAVN slapped: send an email."
     ]
   },
 
@@ -69,10 +70,10 @@ window.ARKINI = {
       id: "kravn",                     // used in the URL: #/game/kravn
       title: "KRAVN",
       serial: "SLES-04451",            // fake PAL disc serial, pure flavour
-      tagline: "A PSX-era boomer shooter. Fast guns, dirty polygons, zero mercy.",
+      tagline: "One stick. Six sectors. A lot of blood.",
       kind: "Game",                    // optional label: Game, Project, Tool, Jam game...
-      status: "demo",                  // released | demo | in-development | coming-soon
-      statusLabel: "DEMO OUT NOW",
+      status: "coming-soon",           // released | demo | in-development | coming-soon
+      statusLabel: "COMING TO STEAM",
       genre: "Boomer shooter",
       platforms: ["Windows"],
       blocks: 3,                       // how many memory card blocks it "uses"
@@ -84,51 +85,57 @@ window.ARKINI = {
         "assets/games/kravn/icon-16x16-f2.png",
         "assets/games/kravn/icon-16x16-f3.png"
       ],
-      cover: "assets/games/kravn/cover-600x600.png",
+      cover: "assets/games/kravn/cover-600x600.jpg",
 
+      // Colours picked from the game itself: rotten stone, torchlight, blood.
       theme: {
-        bg: "#090606",
-        panel: "#170d0c",
-        line: "#3b1d19",
-        ink: "#e3d6bc",
-        dim: "#8f7d6b",
-        primary: "#9e1b10",
-        accent: "#d2482a",
-        ok: "#6f7d68"
+        bg: "#0d0a08",
+        panel: "#1d1611",
+        line: "#3f2d21",
+        ink: "#e8d5b0",
+        dim: "#9c8669",
+        primary: "#9e140c",
+        accent: "#e0913e",
+        ok: "#8a9a6a"
       },
 
-      intro: "You go down. Things come up. KRAVN is a fast, mean little shooter that looks like a disc you rented in 1998 and never gave back.",
+      intro: "You fall. You land. All you have is a stick. KRAVN is a fast, gory first-person shooter where your only weapon is the one you throw, and it always comes back.",
 
       trailer: {
-        // Any YouTube URL or bare video ID works. PLACEHOLDER below.
-        youtube: "https://www.youtube.com/watch?v=VIDEO_ID_HERE",
-        poster: "assets/games/kravn/trailer-poster-1280x720.png"
+        // A local video file plays right on the page. You can also use
+        // youtube: "<any YouTube URL>" instead. steam: adds a "watch on Steam" link.
+        video: ["assets/games/kravn/trailer-gameplay.webm", "assets/games/kravn/trailer-gameplay.mp4"],
+        poster: "assets/games/kravn/trailer-poster-1280x720.jpg",
+        steam: "https://store.steampowered.com/app/5088220/KRAVN/"
       },
 
       screenshots: [
-        { src: "assets/games/kravn/shot-01-1280x720.png", alt: "Placeholder: red brick corridor, two glowing eyes in the dark" },
-        { src: "assets/games/kravn/shot-02-1280x720.png", alt: "Placeholder: grey corridor with a muzzle flash" },
-        { src: "assets/games/kravn/shot-03-1280x720.png", alt: "Placeholder: blood-red hallway lit from the far end" },
-        { src: "assets/games/kravn/shot-04-1280x720.png", alt: "Placeholder: green-walled tunnel with enemies ahead" },
-        { src: "assets/games/kravn/shot-05-1280x720.png", alt: "Placeholder: rust corridor leading to a bright doorway" },
-        { src: "assets/games/kravn/shot-06-1280x720.png", alt: "Placeholder: dark stone passage, shotgun raised" }
+        { src: "assets/games/kravn/shot-01-1280x720.jpg", alt: "A crawler lunges as the stick comes back around: BOOMERANG" },
+        { src: "assets/games/kravn/shot-02-1280x720.jpg", alt: "Floating eyes and a crawler in a blood-soaked corridor: RICOCHET" },
+        { src: "assets/games/kravn/shot-03-1280x720.jpg", alt: "Charging a throw at a crawler at the end of a dark tunnel" },
+        { src: "assets/games/kravn/shot-04-1280x720.jpg", alt: "Two eyes burst in one throw: DOUBLE KILL" },
+        { src: "assets/games/kravn/shot-05-1280x720.jpg", alt: "A crawler torn apart mid-room: DOUBLE HIT" },
+        { src: "assets/games/kravn/shot-06-1280x720.jpg", alt: "Crawlers coming down a torchlit stone corridor" },
+        { src: "assets/games/kravn/shot-07-1280x720.jpg", alt: "A pale stone hall with a hole in the floor" },
+        { src: "assets/games/kravn/shot-08-1280x720.jpg", alt: "Sector cleared: kills, deaths and time" }
       ],
 
       // Short and punchy. Title + one line each. Rewrite these in your own words.
       features: [
-        { title: "Fast. Actually fast.", text: "Slide, jump, keep moving. Standing still is how you die." },
-        { title: "Guns that kick back", text: "Every weapon is loud, heavy and a little bit stupid. As it should be." },
-        { title: "Wobbly on purpose", text: "Vertex jitter, warped textures, dithered colour. Real PS1 jank, not a filter slapped on top." },
-        { title: "Check the walls", text: "Hand-built levels stuffed with secrets. If a wall looks weird, shoot it." },
-        { title: "No live service", text: "No battle pass, no microtransactions, no account. Buy it, play it, done." },
-        { title: "Made by one person", text: "Code, art, levels, sound. All of it out of one room in Aarhus." }
+        { title: "One stick. That's it.", text: "Charge it, throw it, catch it on the way back. It's all you get and it's enough." },
+        { title: "It always comes back", text: "Hit them on the way out and again on the way home. DOUBLE HIT. Line them up for a DOUBLE KILL." },
+        { title: "Things that crawl", text: "Long-limbed crawlers rush you in packs. Floating eyes burn you from across the room." },
+        { title: "Six sectors down", text: "Fall through six sectors of rotten stone and torchlight, starting with The Long Fall." },
+        { title: "Run it again", text: "Every sector counts your kills, deaths and time. Then it dares you to beat it." },
+        { title: "Lore pieces", text: "Scraps of what happened down here are hidden in the levels. Go find them." }
       ],
 
       links: {
-        demo: "https://arkinigames.itch.io/kravn",       // "Play the Demo" button
-        demoLabel: "PLAY THE DEMO",
+        demo: "https://store.steampowered.com/app/5088220/KRAVN/",                 // main button: the Steam page
+        demoLabel: "WISHLIST ON STEAM",
+        steamWidget: "https://store.steampowered.com/widget/5088220/", // Steam's own buy/wishlist box
         devlog: "https://www.youtube.com/@arkinigames",  // devlog / YouTube
-        devlogText: "I post devlogs on YouTube: new guns, broken builds, and how the sausage gets made."
+        devlogText: "I post devlogs on YouTube. Devlog 21 was a big one: the entire game redesigned."
       },
 
       // Background music on this game's page. Built-in synth settings
@@ -136,7 +143,7 @@ window.ARKINI = {
       music: { bpm: 100, root: 45, drums: 1 },
 
       signup: {
-        pitch: "Get one email when the full game drops. No spam. I don't have time for spam."
+        pitch: "Get one email when KRAVN launches on Steam. No spam. I don't have time for spam."
       }
     }
 
