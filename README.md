@@ -1,6 +1,6 @@
 # Arkini Games — website
 
-**Live site:** https://enspecielperson.github.io/arkinigames-website/
+**Live site:** https://enspecielperson.github.io/ArkiniGames-Website/
 
 The official site for Arkini Games, a one-person studio in Aarhus, Denmark.
 
