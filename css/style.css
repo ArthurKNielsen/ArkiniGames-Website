@@ -475,6 +475,12 @@ ol, ul { list-style: none; margin: 0; padding: 0; }
 .opt[aria-pressed="true"] b { color: var(--ok); }
 .opt:hover b, .opt:focus-visible b { background: var(--accent); color: var(--bg); }
 .config__back { justify-self: start; }
+.vol { display: inline-flex; align-items: center; gap: 2px; }
+.vol .opt { padding: 6px 8px; color: var(--accent); }
+.vol .opt:hover, .vol .opt:focus-visible { background: var(--accent); color: var(--bg); outline: none; }
+.vol__bar { display: inline-flex; gap: 2px; padding: 0 4px; }
+.vol__bar i { width: 8px; height: 14px; border: 2px solid var(--line); }
+.vol__bar i.on { background: var(--accent); border-color: var(--accent); }
 @media (min-width: 800px) {
   .config {
     grid-template-columns: minmax(0, 1fr) minmax(0, 1.1fr);

@@ -33,6 +33,7 @@
   function frames(icon) { return Array.isArray(icon) ? icon : icon ? [icon] : []; }
   function gameById(id) { return GAMES.filter(function (g) { return g.id === id; })[0]; }
   function onCleanup(fn) { cleanups.push(fn); }
+  function isOnScreen(el) { var r = el.getBoundingClientRect(); return r.bottom > 0 && r.top < innerHeight; }
 
   /* ---- MAIN NAV (top bar): HOME, every game, ABOUT ---------------------- */
   nav.innerHTML = '<a href="#/" data-nav="home">HOME</a>' +
@@ -266,7 +267,7 @@
       el.addEventListener("click", function (e) {
         if (reel[i].type === "game") { FX.sound.select(); return; } // the link loads the game
         e.preventDefault();
-        FX.sound.error();
+        if (reel[i].type === "teaser") FX.sound.glitch(); else FX.sound.error();
         select(i);
         el.classList.remove("is-shake"); void el.offsetWidth; el.classList.add("is-shake");
       });
@@ -476,6 +477,7 @@
       var box = facade.parentNode;
       if (!id) {
         FX.sound.error();
+        FX.sound.staticBurst(0.8);
         box.innerHTML = '<div class="trailer__nosig" role="status"><b>NO SIGNAL</b><span>Trailer not connected yet. Check back soon.</span></div>';
         return;
       }
@@ -505,7 +507,7 @@
       btn.addEventListener("click", function () {
         shown = +btn.dataset.i;
         var sh = g.screenshots[shown], img = $("img", big);
-        FX.sound.move();
+        FX.sound.shutter();
         img.src = sh.src; img.alt = sh.alt;
         $(".viewer__n", big).textContent = pad2(shown + 1) + " / " + pad2(g.screenshots.length);
         $$(".strip__btn", screen).forEach(function (b) {
@@ -515,7 +517,7 @@
         });
       });
     });
-    if (big) big.addEventListener("click", function () { FX.sound.select(); Lightbox.open(g, shown); });
+    if (big) big.addEventListener("click", function () { Lightbox.open(g, shown); });
 
     // CONTINUE? countdown, 9 to 0, then round again.
     var count = $(".cont__count", screen);
@@ -524,6 +526,7 @@
       var cd = setInterval(function () {
         c = c <= 0 ? 9 : c - 1;
         count.textContent = c;
+        if (document.visibilityState === "visible" && isOnScreen(count)) FX.sound.count(c);
         count.classList.toggle("is-zero", c === 0);
       }, 900);
       onCleanup(function () { clearInterval(cd); });
@@ -532,12 +535,14 @@
     // Level-progress meter in the section bar.
     var cells = $$(".prog li", screen);
     if (cells.length) {
-      var body = $(".gm__body", screen), ticking = false;
+      var body = $(".gm__body", screen), ticking = false, lastLit = -1;
       var upd = function () {
         ticking = false;
         var r = body.getBoundingClientRect();
         var p = Math.max(0, Math.min(1, -r.top / Math.max(1, r.height - innerHeight)));
         var lit = Math.round(p * cells.length);
+        if (lit > lastLit && lastLit >= 0) FX.sound.tick(lit);
+        lastLit = lit;
         cells.forEach(function (li, k) { li.className = k < lit ? "on" : ""; });
       };
       var onScroll = function () { if (!ticking) { ticking = true; requestAnimationFrame(upd); } };
@@ -567,9 +572,9 @@
       bar.hidden = false;
       var cells = $$("i", bar), k = 0;
       var tick = setInterval(function () {
-        if (k < cells.length) { cells[k++].className = "on"; return; }
+        if (k < cells.length) { FX.sound.tick(k); cells[k++].className = "on"; return; }
         clearInterval(tick);
-        FX.sound.select();
+        FX.sound.success();
         status.className = "save__status is-ok";
         status.textContent = "SAVE COMPLETE. YOU'LL HEAR FROM ME WHEN THERE'S NEWS.";
       }, FX.reduced() ? 0 : 70);
@@ -578,6 +583,14 @@
   }
 
   /* ---- ABOUT / SYSTEM CONFIG -------------------------------------------- */
+  function volRow(key, label, v) {
+    return '<li><span>' + label + '</span><span class="vol">' +
+      '<button class="opt" type="button" data-vol="' + key + '" data-d="-1" aria-label="' + label + ' down">&lt;</button>' +
+      '<b class="vol__bar" aria-live="polite" aria-label="' + label + ' ' + v + ' of 10">' + volBar(v) + "</b>" +
+      '<button class="opt" type="button" data-vol="' + key + '" data-d="1" aria-label="' + label + ' up">&gt;</button></span></li>';
+  }
+  function volBar(v) { var o = ""; for (var k = 0; k < 10; k++) o += '<i class="' + (k < v ? "on" : "") + '"></i>'; return o; }
+
   function toggleRow(key, label, on) {
     return '<li><span>' + label + '</span><button class="opt" type="button" data-opt="' + key + '" aria-pressed="' + on + '">' +
       '<span aria-hidden="true">&lt;</span> <b>' + (on ? "ON" : "OFF") + '</b> <span aria-hidden="true">&gt;</span></button></li>';
@@ -601,7 +614,10 @@
         '<div class="config__set">' +
           '<h2 class="sec__h"><span class="sec__n">--</span>SETTINGS</h2>' +
           '<ul class="opts">' +
-            toggleRow("snd", "SOUND", FX.sound.isOn()) +
+            toggleRow("mus", "MUSIC", FX.music.isOn()) +
+            volRow("mus", "MUSIC VOL", FX.music.volume()) +
+            toggleRow("snd", "SOUND FX", FX.sound.isOn()) +
+            volRow("snd", "SFX VOL", FX.sound.volume()) +
             toggleRow("crt", "CRT FILTER", crtOn) +
             '<li><span>BOOT SEQUENCE</span><button class="opt" type="button" data-opt="boot"><b>REPLAY</b></button></li>' +
           "</ul>" +
@@ -620,13 +636,25 @@
         }
         var on = b.getAttribute("aria-pressed") !== "true";
         if (k === "snd") setSound(on);
+        if (k === "mus") setMusic(on);
         if (k === "crt") {
           document.documentElement.classList.toggle("crt-off", !on);
           FX.store.set("arkini.crt", on ? "1" : "0");
+          FX.sound.power(on);
         }
         b.setAttribute("aria-pressed", on);
         $("b", b).textContent = on ? "ON" : "OFF";
-        FX.sound.move();
+      });
+    });
+    $$("[data-vol]", screen).forEach(function (b) {
+      b.addEventListener("click", function () {
+        var api = b.dataset.vol === "mus" ? FX.music : FX.sound;
+        var v = Math.max(0, Math.min(10, api.volume() + +b.dataset.d));
+        api.volume(v);
+        var bar = $(".vol__bar", b.parentNode);
+        bar.innerHTML = volBar(v);
+        bar.setAttribute("aria-label", bar.getAttribute("aria-label").replace(/\d+ of 10/, v + " of 10"));
+        FX.sound.tick(v);
       });
     });
     return { title: "System config — " + SITE.name, crumb: "SYSTEM CONFIG", focus: $(".config__h", screen) };
@@ -655,11 +683,11 @@
       img.alt = list[i].alt || "";
       cap.textContent = "SCREEN " + pad2(i + 1) + " / " + pad2(list.length) + (list[i].alt ? "  —  " + list[i].alt : "");
     }
-    function step(d) { FX.sound.move(); show(i + d); }
+    function step(d) { FX.sound.shutter(); show(i + d); }
     $(".lightbox__prev", dlg).addEventListener("click", function () { step(-1); });
     $(".lightbox__next", dlg).addEventListener("click", function () { step(1); });
     $(".lightbox__close", dlg).addEventListener("click", function () { dlg.close(); });
-    dlg.addEventListener("close", function () { FX.sound.back(); });
+    dlg.addEventListener("close", function () { FX.sound.close(); });
     dlg.addEventListener("click", function (e) { if (e.target === dlg) dlg.close(); });
     dlg.addEventListener("keydown", function (e) {
       if (e.key === "ArrowRight") { e.preventDefault(); step(1); }
@@ -674,6 +702,7 @@
     return {
       open: function (g, k) {
         list = g.screenshots; show(k);
+        FX.sound.open();
         if (dlg.showModal) dlg.showModal(); else dlg.setAttribute("open", "");
       }
     };
@@ -693,6 +722,7 @@
         var tex = img.naturalWidth ? img : solidTex();
         loaderQuad = FX.quad(canvas, tex, { mode: "spin", fill: 0.8 }).start();
         loaderEl.classList.add("is-on");
+        FX.sound.spin();
         setTimeout(function () {
           loaderEl.classList.remove("is-on");
           if (loaderQuad) loaderQuad.stop();
@@ -742,6 +772,8 @@
       cleanups.forEach(function (fn) { try { fn(); } catch (e) {} });
       cleanups = [];
       document.documentElement.classList.add("cut");
+      if (current.name !== null) FX.sound.cut();
+      FX.music.play(r.name === "game" ? (game.music || "game") : r.name === "missing" ? "error" : (SITE.music || "menu"));
       setTimeout(function () { document.documentElement.classList.remove("cut"); }, 90);
 
       if (r.name !== "game") applyTheme(null);
@@ -770,12 +802,37 @@
     FX.sound.set(on);
     sndBtn.setAttribute("aria-pressed", on);
     $("b", sndBtn).textContent = on ? "ON" : "OFF";
-    if (on) FX.sound.select();
+    if (on) FX.sound.on();
     var opt = $('[data-opt="snd"]', screen);
     if (opt) { opt.setAttribute("aria-pressed", on); $("b", opt).textContent = on ? "ON" : "OFF"; }
   }
   setSound(FX.sound.isOn());
   sndBtn.addEventListener("click", function () { setSound(!FX.sound.isOn()); });
+
+  var musBtn = $("#mus");
+  function setMusic(on) {
+    FX.music.set(on);
+    musBtn.setAttribute("aria-pressed", on);
+    $("b", musBtn).textContent = on ? "ON" : "OFF";
+    if (on) FX.sound.on(); else FX.sound.off();
+    var opt = $('[data-opt="mus"]', screen);
+    if (opt) { opt.setAttribute("aria-pressed", on); $("b", opt).textContent = on ? "ON" : "OFF"; }
+  }
+  musBtn.setAttribute("aria-pressed", FX.music.isOn());
+  $("b", musBtn).textContent = FX.music.isOn() ? "ON" : "OFF";
+  musBtn.addEventListener("click", function () { setMusic(!FX.music.isOn()); });
+
+  // A light tick when the pointer lands on anything clickable.
+  var hovered = null;
+  document.addEventListener("pointerover", function (e) {
+    if (e.pointerType === "touch") return;
+    var el = e.target.closest("a, button, input, [role=button], .hit");
+    if (el === hovered) return;
+    hovered = el;
+    if (!el || el.classList.contains("tile")) return;          // tiles have their own sound
+    var inBar = el.closest(".bar, .gm__nav");
+    FX.sound.hover(inBar ? 1900 : 1650);
+  });
 
   document.addEventListener("keydown", function (e) {
     if (e.key !== "Escape" || $("#lightbox").open) return;

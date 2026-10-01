@@ -71,6 +71,7 @@ Games show up on the memory card in the order they're listed.
 | `links.demo` / `links.demoLabel` | The big play button. |
 | `links.devlog` / `links.devlogText` | Devlog link + one line about it. |
 | `signup.pitch` | Line above the email form. |
+| `music` | Background music for this game's page: either built-in synth settings like `{ bpm: 100, root: 45, drums: 1 }` or your own looping file, e.g. `"assets/music/kravn.ogg"`. |
 | `psxThumbs` | Optional `false` to turn off the dithered thumbnails for this game. |
 
 **Leaving a field out hides that part of the page.** No `trailer` means no
@@ -164,8 +165,13 @@ The site is a folder of static files with relative paths, so it runs anywhere.
 
 - **Boot** plays once per browser session. Any key or tap skips it. Replay
   it from CONFIG → BOOT SEQUENCE.
-- **Sound** is synthesized with WebAudio (no audio files) and **on by
-  default**. Browsers only allow audio after the first tap or keypress, so
+- **Music** plays in the background: a built-in synth track per screen
+  (menu, game, error), cross-faded when you change page. Set `site.music` or a
+  game's `music` to an .ogg/.mp3 path to use your own soundtrack instead.
+  Toggle it with MUS in the top bar; CONFIG has volume for music and effects.
+- **Sound effects** (hover ticks, select, back, static between screens, disc
+  spin-up, shutter, save jingle, countdown, CRT power...) are synthesized with
+  WebAudio (no audio files) and **on by default**. Browsers only allow audio after the first tap or keypress, so
   the very first boot is silent until the visitor touches something. Toggle
   it with SND in the top bar; the choice is remembered.
 - **CRT filter** (scanlines, noise, flicker) can be turned off in CONFIG.

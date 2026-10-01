@@ -1,7 +1,7 @@
 /* ==========================================================================
    ARKINI SYSTEM — FX
-   Sound (WebAudio, no files), PS1 affine-warped quads, boot sequence,
-   15-bit dither for thumbnails. No dependencies.
+   PS1 affine-warped quads, boot sequence, 15-bit dither for thumbnails.
+   Sound and music live in sound.js. No dependencies.
    ========================================================================== */
 
 (function () {
@@ -14,72 +14,6 @@
   FX.store = {
     get: function (k) { try { return localStorage.getItem(k); } catch (e) { return null; } },
     set: function (k, v) { try { localStorage.setItem(k, v); } catch (e) {} }
-  };
-
-  /* ---- SOUND ------------------------------------------------------------
-     On by default (toggle in the top bar). Everything is synthesized, so there
-     are no files. */
-  var audio = null;
-  var soundOn = FX.store.get("arkini.snd") !== "0"; // on unless the visitor muted it
-
-  // Browsers keep audio locked until the first tap/keypress. Unlock it then,
-  // so hover blips work right away afterwards.
-  function unlock() {
-    if (soundOn) ac();
-    window.removeEventListener("pointerdown", unlock, true);
-    window.removeEventListener("keydown", unlock, true);
-  }
-  window.addEventListener("pointerdown", unlock, true);
-  window.addEventListener("keydown", unlock, true);
-
-  function ac() {
-    if (!audio) {
-      var A = window.AudioContext || window.webkitAudioContext;
-      if (!A) return null;
-      audio = new A();
-    }
-    if (audio.state === "suspended") audio.resume();
-    return audio;
-  }
-
-  function blip(freq, dur, type, vol, when) {
-    var a = ac(); if (!a) return;
-    var t = a.currentTime + (when || 0);
-    var o = a.createOscillator(), g = a.createGain();
-    o.type = type || "square";
-    o.frequency.setValueAtTime(freq, t);
-    g.gain.setValueAtTime(vol || 0.03, t);
-    g.gain.exponentialRampToValueAtTime(0.0001, t + dur);
-    o.connect(g); g.connect(a.destination);
-    o.start(t); o.stop(t + dur + 0.02);
-  }
-
-  function swell(freq, when, peak) {
-    var a = ac(); if (!a) return;
-    var t = a.currentTime + when;
-    var o = a.createOscillator(), g = a.createGain();
-    o.type = "triangle";
-    o.frequency.value = freq;
-    o.detune.value = (Math.random() - 0.5) * 14;
-    g.gain.setValueAtTime(0.0001, t);
-    g.gain.exponentialRampToValueAtTime(peak, t + 0.7);
-    g.gain.exponentialRampToValueAtTime(0.0001, t + 2.8);
-    o.connect(g); g.connect(a.destination);
-    o.start(t); o.stop(t + 2.9);
-  }
-
-  FX.sound = {
-    isOn: function () { return soundOn; },
-    set: function (v) { soundOn = !!v; FX.store.set("arkini.snd", soundOn ? "1" : "0"); },
-    move: function () { if (soundOn) blip(1200, 0.035, "square", 0.018); },
-    select: function () { if (soundOn) { blip(660, 0.05); blip(990, 0.09, "square", 0.03, 0.05); } },
-    back: function () { if (soundOn) { blip(520, 0.05); blip(330, 0.1, "square", 0.03, 0.05); } },
-    error: function () { if (soundOn) blip(98, 0.22, "sawtooth", 0.035); },
-    boot: function () {
-      if (!soundOn) return;
-      [[110, 0], [164.8, 0.05], [220, 0.1], [277.2, 0.15], [329.6, 0.2]].forEach(function (n) { swell(n[0], n[1], 0.028); });
-      swell(1318.5, 0.9, 0.008);
-    }
   };
 
   /* ---- AFFINE QUAD ------------------------------------------------------

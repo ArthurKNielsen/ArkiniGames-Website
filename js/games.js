@@ -31,6 +31,10 @@ window.ARKINI = {
       "Made in Aarhus, Denmark"
     ],
 
+    // Background music for home + config. "menu" is the built-in synth track.
+    // Swap in your own loop later, e.g. "assets/music/menu-theme.ogg".
+    music: "menu",
+
     // Optional: path to a logo image (PNG with transparency, ~200x72).
     // When null, the logo is drawn from the pixel font.
     logoImage: null,
@@ -126,6 +130,10 @@ window.ARKINI = {
         devlog: "https://www.youtube.com/@arkinigames",  // devlog / YouTube
         devlogText: "I post devlogs on YouTube: new guns, broken builds, and how the sausage gets made."
       },
+
+      // Background music on this game's page. Built-in synth settings
+      // ({ bpm, root (MIDI note), drums }) or a file: "assets/music/kravn.ogg"
+      music: { bpm: 100, root: 45, drums: 1 },
 
       signup: {
         pitch: "Get one email when the full game drops. No spam. I don't have time for spam."
