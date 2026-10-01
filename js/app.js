@@ -221,6 +221,7 @@
           '<ul class="hub__links">' +
             (SITE.links.steam ? '<li><a class="btn" href="' + esc(SITE.links.steam) + '" target="_blank" rel="noopener">STEAM</a></li>' : "") +
             '<li><a class="btn" href="' + esc(SITE.links.youtube) + '" target="_blank" rel="noopener">YOUTUBE @' + esc(yt) + "</a></li>" +
+            (SITE.links.discord ? '<li><a class="btn" href="' + esc(SITE.links.discord) + '" target="_blank" rel="noopener">DISCORD</a></li>' : "") +
             '<li><a class="btn" href="#/about">CONTACT</a></li>' +
           "</ul>" +
         "</div>" +
@@ -308,7 +309,7 @@
     if (g.trailer) s.push(["trailer", "TRAILER"]);
     if (g.screenshots && g.screenshots.length) s.push(["screens", "SCREENS"]);
     if (g.features && g.features.length) s.push(["features", "FEATURES"]);
-    if (g.links && g.links.demo) s.push(["demo", "DEMO"]);
+    if (g.links && g.links.demo) s.push(["demo", storeName(g.links.demo) === "Steam" ? "STEAM" : "DEMO"]);
     if (g.links && g.links.devlog) s.push(["devlog", "DEVLOG"]);
     if (g.signup) s.push(["signup", "SIGN UP"]);
     return s;
@@ -366,7 +367,9 @@
           (links.steamWidget ? '<iframe class="steam-widget" src="' + esc(links.steamWidget) + '" title="' + esc(g.title) + ' on Steam" loading="lazy" frameborder="0"></iframe>' : "");
       } else if (id === "devlog") {
         body = '<div class="devlog"><p>' + esc(links.devlogText || "Follow development on YouTube.") + "</p>" +
-          '<a class="btn" href="' + esc(links.devlog) + '" target="_blank" rel="noopener">WATCH THE DEVLOG <span aria-hidden="true">&gt;&gt;</span></a></div>';
+          '<div class="devlog__btns"><a class="btn" href="' + esc(links.devlog) + '" target="_blank" rel="noopener">WATCH THE DEVLOG <span aria-hidden="true">&gt;&gt;</span></a>' +
+          (links.discord ? '<a class="btn" href="' + esc(links.discord) + '" target="_blank" rel="noopener">JOIN THE DISCORD <span aria-hidden="true">&gt;&gt;</span></a>' : "") +
+          "</div></div>";
       } else if (id === "signup") {
         var fid = "email-" + esc(g.id);
         body = '<form class="save" action="' + esc(SITE.signupEndpoint || "") + '" method="post">' +

@@ -440,6 +440,7 @@ ol, ul { list-style: none; margin: 0; padding: 0; }
 .trailer__nosig span { color: var(--dim); }
 
 .devlog p { max-width: 48ch; }
+.devlog__btns { display: flex; flex-wrap: wrap; gap: 8px; }
 
 /* signup */
 .save { max-width: 560px; }

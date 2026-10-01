@@ -16,7 +16,8 @@ window.ARKINI = {
     founded: "2024",                // PLACEHOLDER: the year you started
     links: {
       steam: "https://store.steampowered.com/app/5088220/KRAVN/",
-      youtube: "https://www.youtube.com/@arkinigames"
+      youtube: "https://www.youtube.com/@arkinigames",
+      discord: "https://discord.com/invite/bYdaGM7nPh"
     },
 
     // Email signup. Leave empty for the front-end-only "fake save".
@@ -27,7 +28,8 @@ window.ARKINI = {
     // Leave empty to show each game's status instead.
     news: [
       "KRAVN: wishlist now on Steam",
-      "Sector 1: The Long Fall",
+      "No ammo. So make it count.",
+      "Join the KRAVN Discord",
       "New devlogs on YouTube: @arkinigames",
       "Made in Aarhus, Denmark"
     ],
@@ -70,11 +72,11 @@ window.ARKINI = {
       id: "kravn",                     // used in the URL: #/game/kravn
       title: "KRAVN",
       serial: "SLES-04451",            // fake PAL disc serial, pure flavour
-      tagline: "One stick. Six sectors. A lot of blood.",
+      tagline: "No ammo. So make it count.",
       kind: "Game",                    // optional label: Game, Project, Tool, Jam game...
       status: "coming-soon",           // released | demo | in-development | coming-soon
       statusLabel: "COMING TO STEAM",
-      genre: "Boomer shooter",
+      genre: "Fast-paced boomer shooter",
       platforms: ["Windows"],
       blocks: 3,                       // how many memory card blocks it "uses"
       saveDate: "2026-10-01",          // shown as LAST SAVE, use your latest update
@@ -99,35 +101,39 @@ window.ARKINI = {
         ok: "#8a9a6a"
       },
 
-      intro: "You fall. You land. All you have is a stick. KRAVN is a fast, gory first-person shooter where your only weapon is the one you throw, and it always comes back.",
+      intro: "No guns. No ammo. Just a stick you throw, and it always comes back. KRAVN is a fast, gory boomer shooter about a long way down: stone tunnels, a desert lost in fog, a sea of blood, and whatever is waiting in Sector 5.",
+      heroImage: "assets/games/kravn/shot-02.jpg", // big background at the top of the page
 
       trailer: {
-        // A local video file plays right on the page. You can also use
-        // youtube: "<any YouTube URL>" instead. steam: adds a "watch on Steam" link.
-        video: ["assets/games/kravn/trailer-gameplay.webm", "assets/games/kravn/trailer-gameplay.mp4"],
+        // Official gameplay trailer. Plays right on the page (webm first, mp4 fallback).
+        video: ["assets/games/kravn/trailer.webm", "assets/games/kravn/trailer.mp4"],
         poster: "assets/games/kravn/trailer-poster-1280x720.jpg",
         steam: "https://store.steampowered.com/app/5088220/KRAVN/"
       },
 
+      // Official Steam screenshots.
       screenshots: [
-        { src: "assets/games/kravn/shot-01-1280x720.jpg", alt: "A crawler lunges as the stick comes back around: BOOMERANG" },
-        { src: "assets/games/kravn/shot-02-1280x720.jpg", alt: "Floating eyes and a crawler in a blood-soaked corridor: RICOCHET" },
-        { src: "assets/games/kravn/shot-03-1280x720.jpg", alt: "Charging a throw at a crawler at the end of a dark tunnel" },
-        { src: "assets/games/kravn/shot-04-1280x720.jpg", alt: "Two eyes burst in one throw: DOUBLE KILL" },
-        { src: "assets/games/kravn/shot-05-1280x720.jpg", alt: "A crawler torn apart mid-room: DOUBLE HIT" },
-        { src: "assets/games/kravn/shot-06-1280x720.jpg", alt: "Crawlers coming down a torchlit stone corridor" },
-        { src: "assets/games/kravn/shot-07-1280x720.jpg", alt: "A pale stone hall with a hole in the floor" },
-        { src: "assets/games/kravn/shot-08-1280x720.jpg", alt: "Sector cleared: kills, deaths and time" }
+        { src: "assets/games/kravn/shot-01.jpg", alt: "A body on a bloody tiled floor with a stick driven through it" },
+        { src: "assets/games/kravn/shot-02.jpg", alt: "A floating eye fires blue lasers down a long hall at a line of figures" },
+        { src: "assets/games/kravn/shot-03.jpg", alt: "Floating eyes over a sea of blood under a red sky" },
+        { src: "assets/games/kravn/shot-04.jpg", alt: "Dark figures walk out of the fog in an open desert, eyes hovering above" },
+        { src: "assets/games/kravn/shot-05.jpg", alt: "Rocks and blood fly across a hazy desert" },
+        { src: "assets/games/kravn/shot-06.jpg", alt: "A floating eye guards a torchlit stone corridor" },
+        { src: "assets/games/kravn/shot-07.jpg", alt: "Figures on ledges in a tall stone shaft, the green stick charged" },
+        { src: "assets/games/kravn/shot-08.jpg", alt: "A hallway drowned in red" },
+        { src: "assets/games/kravn/shot-09.jpg", alt: "An eye bursts into blood and shards mid-throw" },
+        { src: "assets/games/kravn/shot-10.jpg", alt: "Blood sprays across a bright stone corridor" },
+        { src: "assets/games/kravn/shot-11.jpg", alt: "A kill explodes in front of the glowing green stick" }
       ],
 
       // Short and punchy. Title + one line each. Rewrite these in your own words.
       features: [
-        { title: "One stick. That's it.", text: "Charge it, throw it, catch it on the way back. It's all you get and it's enough." },
+        { title: "No ammo. Make it count.", text: "You get one stick. Charge it, throw it, catch it on the way back. Miss and you are empty-handed." },
         { title: "It always comes back", text: "Hit them on the way out and again on the way home. DOUBLE HIT. Line them up for a DOUBLE KILL." },
-        { title: "Things that crawl", text: "Long-limbed crawlers rush you in packs. Floating eyes burn you from across the room." },
-        { title: "Six sectors down", text: "Fall through six sectors of rotten stone and torchlight, starting with The Long Fall." },
-        { title: "Run it again", text: "Every sector counts your kills, deaths and time. Then it dares you to beat it." },
-        { title: "Lore pieces", text: "Scraps of what happened down here are hidden in the levels. Go find them." }
+        { title: "Charge it up", text: "Hold the throw until the stick glows and let it rip through everything in the room." },
+        { title: "Things that watch", text: "Floating eyes burn you with lasers from across the room while things crawl and walk out of the fog." },
+        { title: "The descent", text: "Six sectors down: stone tunnels, a desert lost in fog, a sea of blood under a red sky. Sector 5 is compromised." },
+        { title: "Run it again", text: "Every sector counts your kills, deaths and time, then dares you to beat it. Lore pieces hide in the levels." }
       ],
 
       links: {
@@ -135,7 +141,8 @@ window.ARKINI = {
         demoLabel: "WISHLIST ON STEAM",
         steamWidget: "https://store.steampowered.com/widget/5088220/", // Steam's own buy/wishlist box
         devlog: "https://www.youtube.com/@arkinigames",  // devlog / YouTube
-        devlogText: "I post devlogs on YouTube. Devlog 21 was a big one: the entire game redesigned."
+        devlogText: "I post devlogs on YouTube. Devlog 21 was a big one: the entire game redesigned.",
+        discord: "https://discord.com/invite/bYdaGM7nPh"
       },
 
       // Background music on this game's page. Built-in synth settings

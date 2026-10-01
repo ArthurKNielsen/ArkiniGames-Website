@@ -109,13 +109,13 @@ readable on `bg`.
 
 ## KRAVN's images and video
 
-KRAVN uses real footage now (pulled from the "KRAVN 21 - Entire Game Redesign"
-gameplay video). Replace any of these with official art whenever you like:
+KRAVN uses the official Steam screenshots and gameplay trailer. The cover is
+the title screen from the game:
 
 | file | size | notes |
 |---|---|---|
-| `assets/games/kravn/shot-01..08-1280x720.jpg` | 1280×720 | screenshots, JPG ~80 quality |
-| `assets/games/kravn/trailer-gameplay.webm` + `.mp4` | 1280×720 | ~30s, same clip in both formats, keep each under ~8 MB |
+| `assets/games/kravn/shot-01..11.jpg` | 1280 wide | official Steam screenshots |
+| `assets/games/kravn/trailer.webm` + `.mp4` | 1280×720 | official gameplay trailer, both formats, each under ~15 MB |
 | `assets/games/kravn/trailer-poster-1280x720.jpg` | 1280×720 | shown before the trailer plays |
 | `assets/games/kravn/cover-600x600.jpg` | 600×600 | title-screen logo over the opening shot |
 | `assets/games/kravn/icon-16x16-f1..f3.png` | 16×16 | save icon frames (the raven) |
