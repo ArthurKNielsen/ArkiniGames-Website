@@ -40,8 +40,9 @@ You only edit **`js/games.js`**.
 1. Make a folder for the images, e.g. `assets/games/my-game/`.
 2. In `js/games.js`, copy the whole KRAVN object inside `games: [ ... ]`, paste
    it after KRAVN with a comma between them, and change the values.
-3. Done. The game gets a memory card block (or several, if `blocks > 1`), an
-   entry in the boot screen's save count, and a page at `#/game/my-game`.
+3. Done. The game gets a link in the top menu, a row in the DISCS list, a
+   memory card block (or several, if `blocks > 1`), a page at
+   `#/game/my-game`, and NEXT DISC links from the other game pages.
 
 Games show up on the memory card in the order they're listed.
 
@@ -54,6 +55,7 @@ Games show up on the memory card in the order they're listed.
 | `serial` | Fake PAL disc code shown on the page (e.g. `SLES-04451`). Flavour only. |
 | `tagline` | One line, shown on the memory card info panel and under the title. |
 | `intro` | Optional short paragraph under the tagline. |
+| `kind` | Optional label shown in the disc list, e.g. `Game`, `Project`, `Jam game`. Use it for non-game projects. |
 | `status` | `released`, `demo`, `in-development` or `coming-soon`. |
 | `statusLabel` | What's actually displayed, e.g. `DEMO OUT NOW`. |
 | `genre`, `platforms` | Shown in the file info. `platforms` is an array. |
@@ -155,8 +157,10 @@ The site is a folder of static files with relative paths, so it runs anywhere.
 
 - **Boot** plays once per browser session. Any key or tap skips it. Replay
   it from CONFIG → BOOT SEQUENCE.
-- **Sound** is synthesized with WebAudio (no audio files) and **off by
-  default**. Toggle it with SND in the top bar. The choice is remembered.
+- **Sound** is synthesized with WebAudio (no audio files) and **on by
+  default**. Browsers only allow audio after the first tap or keypress, so
+  the very first boot is silent until the visitor touches something. Toggle
+  it with SND in the top bar; the choice is remembered.
 - **CRT filter** (scanlines, noise, flicker) can be turned off in CONFIG.
 - **`prefers-reduced-motion`** skips the boot and loading screens, and stops
   flicker, jitter, blinking and the logo wobble.

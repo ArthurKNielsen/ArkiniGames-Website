@@ -17,9 +17,20 @@
   };
 
   /* ---- SOUND ------------------------------------------------------------
-     Muted by default. Everything is synthesized, so there are no files. */
+     On by default (toggle in the top bar). Everything is synthesized, so there
+     are no files. */
   var audio = null;
-  var soundOn = FX.store.get("arkini.snd") === "1";
+  var soundOn = FX.store.get("arkini.snd") !== "0"; // on unless the visitor muted it
+
+  // Browsers keep audio locked until the first tap/keypress. Unlock it then,
+  // so hover blips work right away afterwards.
+  function unlock() {
+    if (soundOn) ac();
+    window.removeEventListener("pointerdown", unlock, true);
+    window.removeEventListener("keydown", unlock, true);
+  }
+  window.addEventListener("pointerdown", unlock, true);
+  window.addEventListener("keydown", unlock, true);
 
   function ac() {
     if (!audio) {
@@ -221,6 +232,7 @@
       function skip(e) {
         if (e.type === "keydown" && (e.key === "Tab" || e.metaKey || e.ctrlKey)) return;
         e.preventDefault();
+        FX.sound.select();
         finish();
       }
       function at(ms, fn) { timers.push(setTimeout(fn, ms)); }

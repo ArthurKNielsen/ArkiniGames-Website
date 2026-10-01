@@ -19,7 +19,7 @@
   var $$ = function (sel, root) { return Array.prototype.slice.call((root || document).querySelectorAll(sel)); };
 
   var screen = $("#screen");
-  var crumb = $("#crumb");
+  var nav = $("#mainnav");
   var cleanups = [];
   var current = { name: null, id: null };
 
@@ -33,6 +33,24 @@
   function frames(icon) { return Array.isArray(icon) ? icon : icon ? [icon] : []; }
   function gameById(id) { return GAMES.filter(function (g) { return g.id === id; })[0]; }
   function onCleanup(fn) { cleanups.push(fn); }
+
+  /* ---- MAIN NAV (top bar): HOME, every game, ABOUT ---------------------- */
+  nav.innerHTML = '<a href="#/" data-nav="home">HOME</a>' +
+    GAMES.map(function (g) {
+      return '<a href="#/game/' + esc(g.id) + '" data-nav="game:' + esc(g.id) + '">' + esc(g.title) + "</a>";
+    }).join("") +
+    '<a href="#/about" data-nav="about">ABOUT</a>';
+
+  function markNav(key) {
+    $$("a", nav).forEach(function (a) {
+      if (a.dataset.nav === key) {
+        a.setAttribute("aria-current", "page");
+        nav.scrollLeft = a.offsetLeft - 24;
+      } else {
+        a.removeAttribute("aria-current");
+      }
+    });
+  }
 
   /* ---- THEME ------------------------------------------------------------ */
   var VARS = ["bg", "panel", "line", "ink", "dim", "primary", "accent", "ok"];
@@ -88,7 +106,7 @@
       var label = s.game.title + (s.type === "link" ? " (linked block)" : "") + ", " + (s.game.statusLabel || s.game.status);
       return '<li role="none"><a role="gridcell" ' + base + ' href="#/game/' + esc(s.game.id) + '" aria-label="Block ' + n + ": " + esc(label) + '">' +
         '<span class="slot__n">' + n + "</span>" +
-        (s.type === "game" ? iconImg(s.game, "slot__icon") : '<span class="slot__link" aria-hidden="true"></span>') +
+        (s.type === "game" ? iconImg(s.game, "slot__icon") + '<span class="slot__t" aria-hidden="true">' + esc(s.game.title) + "</span>" : '<span class="slot__link" aria-hidden="true"></span>') +
         "</a></li>";
     }
     var names = { teaser: "coming soon", corrupt: "corrupted data", empty: "free block" };
@@ -139,10 +157,20 @@
           '<h1 class="sr-only">' + esc(SITE.name) + "</h1>" +
           '<canvas class="home__logo" width="220" height="80" role="img" aria-label="' + esc(SITE.name) + ' logo"></canvas>' +
           '<p class="home__tag">' + esc(SITE.tagline) + "</p>" +
+          '<h2 class="home__h">DISCS</h2>' +
+          '<ul class="discs">' + GAMES.map(function (g) {
+            return '<li><a class="disc" href="#/game/' + esc(g.id) + '">' +
+              iconImg(g, "disc__icon") +
+              '<span class="disc__t">' + esc(g.title) + "</span>" +
+              '<span class="disc__s">' + esc([g.kind, g.statusLabel || g.status].filter(Boolean).join(" · ")) + "</span>" +
+              '<span class="disc__go" aria-hidden="true">LOAD &gt;</span>' +
+              "</a></li>";
+          }).join("") + "</ul>" +
+          '<h2 class="home__h">ELSEWHERE</h2>' +
           '<ul class="home__links">' +
             '<li><a href="' + esc(SITE.links.itch) + '" rel="noopener" target="_blank"><b>ITCH.IO</b><span>' + esc(hostOf(SITE.links.itch)) + "</span></a></li>" +
             '<li><a href="' + esc(SITE.links.youtube) + '" rel="noopener" target="_blank"><b>YOUTUBE</b><span>@' + esc(SITE.links.youtube.split("@")[1] || "") + "</span></a></li>" +
-            '<li><a href="#/about"><b>CONTACT</b><span>system config</span></a></li>' +
+            '<li><a href="#/about"><b>CONTACT</b><span>about + email</span></a></li>' +
           "</ul>" +
         "</div>" +
         '<div class="card">' +
@@ -324,12 +352,25 @@
             "</dl>" +
           "</header>" +
           html.join("") +
+          discNav(g) +
         "</div>" +
       "</article>";
 
     wireGame(g);
     if (sectionId) requestAnimationFrame(function () { goSection(sectionId, false); });
     return { title: g.title + " — " + SITE.name, crumb: "MEMORY CARD 1 / " + g.title, focus: $(".game__title", screen), keepScroll: !!sectionId };
+  }
+
+  // End-of-page navigation: back to the card, plus previous/next disc.
+  function discNav(g) {
+    var i = GAMES.indexOf(g), n = GAMES.length;
+    var out = '<a class="btn" href="#/"><i class="pad pad--tri"></i>MEMORY CARD</a>';
+    if (n > 1) {
+      var prev = GAMES[(i - 1 + n) % n], next = GAMES[(i + 1) % n];
+      if (prev !== next) out += '<a class="btn" href="#/game/' + esc(prev.id) + '">&lt; ' + esc(prev.title) + "</a>";
+      out += '<a class="btn btn--primary" href="#/game/' + esc(next.id) + '">NEXT DISC: ' + esc(next.title) + " &gt;</a>";
+    }
+    return '<nav class="game__foot" aria-label="More discs">' + out + "</nav>";
   }
 
   function goSection(id, smooth) {
@@ -608,7 +649,7 @@
       current.id = r.id || null;
       if (game) current.lastGame = game.id;
       document.title = res.title;
-      crumb.textContent = res.crumb;
+      markNav(r.name === "game" ? "game:" + r.id : r.name);
       document.body.dataset.screen = r.name;
       if (!res.keepScroll) window.scrollTo(0, 0);
       if (res.focus) res.focus.focus({ preventScroll: true });

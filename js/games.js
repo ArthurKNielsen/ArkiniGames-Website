@@ -58,6 +58,7 @@ window.ARKINI = {
       title: "KRAVN",
       serial: "SLES-04451",            // fake PAL disc serial, pure flavour
       tagline: "A PSX-era boomer shooter. Fast guns, dirty polygons, zero mercy.",
+      kind: "Game",                    // optional label: Game, Project, Tool, Jam game...
       status: "demo",                  // released | demo | in-development | coming-soon
       statusLabel: "DEMO OUT NOW",
       genre: "Boomer shooter",
