@@ -5,8 +5,9 @@
 The official site for Arkini Games, a one-person studio in Aarhus, Denmark.
 
 The site works like a PS1 that boots. First you get a short BIOS screen, then a
-memory card manager where each game is a save block. From there you open a
-game's "disc" page. It's plain HTML, CSS and vanilla JS with no framework, no
+demo-disc style menu: the selected game's cover floats over a low-poly stage,
+with a disc select reel, a memory card bar and a news ticker below. From there
+you open a game's page, laid out like a title screen. It's plain HTML, CSS and vanilla JS with no framework, no
 build step and no dependencies.
 
 ```
@@ -76,6 +77,12 @@ Games show up on the memory card in the order they're listed.
 TRAILER section and no menu entry. The same goes for `screenshots`, `features`,
 `links.demo`, `links.devlog` and `signup`. That covers a teaser page for a
 `coming-soon` game: give it a title, tagline, cover and theme and nothing else.
+
+### Studio-wide settings
+
+Besides `games`, the `site` block in `games.js` holds the tagline, email,
+links, the theme, the memory card setup and `news`: the lines that scroll
+in the ticker on the home screen.
 
 ### Themes
 

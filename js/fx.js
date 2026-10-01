@@ -106,7 +106,7 @@
     c.restore();
   }
 
-  function project(cw, ch, qw, qh, yaw, pitch, roll) {
+  function project(cw, ch, qw, qh, yaw, pitch, roll, oy) {
     var cy = Math.cos(yaw), sy = Math.sin(yaw);
     var cp = Math.cos(pitch), sp = Math.sin(pitch);
     var cr = Math.cos(roll), sr = Math.sin(roll);
@@ -117,7 +117,7 @@
       t = x * cy + z * sy; z = -x * sy + z * cy; x = t;         // yaw
       t = y * cp - z * sp; z = y * sp + z * cp; y = t;          // pitch
       var s = fov / (z + dist);
-      return [Math.round(cw / 2 + x * s), Math.round(ch / 2 + y * s)];
+      return [Math.round(cw / 2 + x * s), Math.round(ch * (oy || 0.5) + y * s)];
     });
   }
 
@@ -127,8 +127,35 @@
     texTri(c, tex, pts[0], pts[2], pts[3], [0, 0], [w, h], [0, h]);
   }
 
+  /* Low-poly perspective floor, pixel-snapped: the "stage" under a showcase
+     object, like a PS1 demo-disc menu. Lines scroll toward the camera. */
+  FX.floor = function (c, t, cw, ch, col) {
+    var hz = Math.round(ch * 0.58), vx = cw / 2, i, y, z;
+    c.fillStyle = col.far;
+    c.fillRect(0, hz, cw, ch - hz);
+    c.fillStyle = col.line;
+    for (i = -14; i <= 14; i++) {                     // rails to the vanishing point
+      var bx = vx + i * cw * 0.16;
+      for (y = hz; y < ch; y += 1) {
+        var k = (y - hz) / (ch - hz);
+        c.fillRect(Math.round(vx + (bx - vx) * k), y, 1, 1);
+      }
+    }
+    var off = (t * 0.6) % 1;                            // cross lines, moving
+    for (i = 0; i < 12; i++) {
+      z = 1 + (i - off) * 0.9;
+      if (z <= 0.2) continue;
+      y = Math.round(hz + (ch - hz) * (0.9 / z));
+      if (y > hz && y < ch) c.fillRect(0, y, cw, 1);
+    }
+    c.fillStyle = col.hz;
+    c.fillRect(0, hz, cw, 1);
+  };
+
   /* Animate a texture on a low-res canvas at ~20fps, like a real PS1 menu.
-     mode "sway": slow wobble (logo). mode "spin": full turn (loading disc). */
+     mode "sway": slow wobble (logo). mode "spin": full turn (loading disc).
+     mode "show": wide showcase wobble (home stage). opts.before(ctx, t, w, h)
+     draws a background each frame; opts.oy moves the object up or down. */
   FX.quad = function (canvas, tex, opts) {
     opts = opts || {};
     var c = canvas.getContext("2d");
@@ -143,6 +170,10 @@
       var yaw, pitch, roll;
       if (opts.mode === "spin") {
         yaw = t * 3.2; pitch = 0.12; roll = Math.sin(t * 2) * 0.05;
+      } else if (opts.mode === "show") {
+        yaw = Math.sin(t * 0.55) * 0.7;
+        pitch = -0.06 + Math.sin(t * 0.9) * 0.05;
+        roll = Math.sin(t * 0.4) * 0.03;
       } else {
         yaw = Math.sin(t * 0.8) * 0.42;
         pitch = Math.sin(t * 0.53) * 0.2;
@@ -150,7 +181,8 @@
       }
       c.imageSmoothingEnabled = false;
       c.clearRect(0, 0, cw, ch);
-      drawQuad(c, tex, project(cw, ch, qw, qh, yaw, pitch, roll));
+      if (opts.before) opts.before(c, t, cw, ch);
+      drawQuad(c, tex, project(cw, ch, qw, qh, yaw, pitch, roll, opts.oy));
     }
 
     function loop(now) {
@@ -169,7 +201,7 @@
         return this;
       },
       stop: function () { running = false; cancelAnimationFrame(raf); },
-      setTexture: function (t) { tex = t; }
+      setTexture: function (t) { tex = t; if (!running) frame(0.9); }
     };
   };
 

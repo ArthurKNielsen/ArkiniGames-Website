@@ -99,153 +99,199 @@
     return { slots: slots, free: total - used - (cfg.teaserSlots || 0), total: total };
   }
 
-  function slotHTML(s, i) {
-    var n = pad2(i + 1);
-    var base = 'class="slot slot--' + s.type + '" data-i="' + i + '" tabindex="-1"';
-    if (s.type === "game" || s.type === "link") {
-      var label = s.game.title + (s.type === "link" ? " (linked block)" : "") + ", " + (s.game.statusLabel || s.game.status);
-      return '<li role="none"><a role="gridcell" ' + base + ' href="#/game/' + esc(s.game.id) + '" aria-label="Block ' + n + ": " + esc(label) + '">' +
-        '<span class="slot__n">' + n + "</span>" +
-        (s.type === "game" ? iconImg(s.game, "slot__icon") + '<span class="slot__t" aria-hidden="true">' + esc(s.game.title) + "</span>" : '<span class="slot__link" aria-hidden="true"></span>') +
-        "</a></li>";
-    }
-    var names = { teaser: "coming soon", corrupt: "corrupted data", empty: "free block" };
-    return '<li role="none"><button role="gridcell" type="button" ' + base + ' aria-label="Block ' + n + ": " + names[s.type] + '">' +
-      '<span class="slot__n">' + n + "</span>" +
-      (s.type === "teaser" ? '<span class="slot__glyph" aria-hidden="true">?</span>' : "") +
-      (s.type === "corrupt" ? '<span class="slot__glyph" aria-hidden="true">#</span>' : "") +
-      "</button></li>";
+  // Memory card strip: 15 tiny blocks, used ones lit.
+  function cellHTML(s) {
+    var inner = s.type === "game" ? iconImg(s.game, "mc__icon") :
+      s.type === "teaser" ? "?" : s.type === "corrupt" ? "#" : "";
+    return '<li class="mc__c mc__c--' + s.type + '">' + inner + "</li>";
   }
 
-  function infoHTML(s) {
-    if (s.type === "game" || s.type === "link") {
-      var g = s.game;
-      return '<div class="info__icon">' + iconImg(g, "info__img") + "</div>" +
-        '<p class="info__k">' + esc(g.serial || "DISC") + "</p>" +
-        '<h2 class="info__title">' + esc(g.title) + "</h2>" +
-        '<p class="info__tag">' + esc(g.tagline) + "</p>" +
-        '<dl class="info__rows">' +
-        "<dt>STATUS</dt><dd class=\"is-ok\">" + esc(g.statusLabel || g.status) + "</dd>" +
-        (g.genre ? "<dt>GENRE</dt><dd>" + esc(g.genre) + "</dd>" : "") +
-        "<dt>BLOCKS</dt><dd>" + esc(g.blocks || 1) + "</dd>" +
-        (g.saveDate ? "<dt>LAST SAVE</dt><dd>" + esc(g.saveDate.replace(/-/g, ".")) + "</dd>" : "") +
-        "</dl>" +
-        '<a class="btn btn--primary info__go" href="#/game/' + esc(g.id) + '"><i class="pad pad--x"></i>LOAD ' + esc(g.title) + "</a>";
+  // Disc select reel: every game, then teaser and empty trays.
+  function buildReel() {
+    var reel = GAMES.map(function (g) { return { type: "game", game: g }; });
+    var teasers = (SITE.memoryCard && SITE.memoryCard.teaserSlots) || 0;
+    for (var i = 0; i < teasers; i++) reel.push({ type: "teaser" });
+    while (reel.length < 4) reel.push({ type: "empty" });
+    return reel;
+  }
+
+  function tileHTML(t, i) {
+    var n = '<span class="tile__n">DISC ' + pad2(i + 1) + "</span>";
+    if (t.type === "game") {
+      var g = t.game;
+      return '<li><a class="tile tile--game" data-i="' + i + '" href="#/game/' + esc(g.id) + '">' +
+        '<span class="tile__art">' + (g.cover ? '<img src="' + esc(g.cover) + '" alt="" width="600" height="600" loading="lazy">' : iconImg(g, "tile__icon")) + "</span>" +
+        n + '<b class="tile__t">' + esc(g.title) + '</b><span class="tile__s">' + esc(g.statusLabel || g.status) + "</span></a></li>";
     }
-    if (s.type === "teaser") {
-      return '<p class="info__k">BLOCK RESERVED</p>' +
-        '<h2 class="info__title" data-scramble="COMING SOON">COMING SOON</h2>' +
-        '<p class="info__tag">Something is being written to this block. Do not switch off the power.</p>' +
-        '<dl class="info__rows"><dt>STATUS</dt><dd>WRITING...</dd><dt>BLOCKS</dt><dd>??</dd></dl>';
+    var teaser = t.type === "teaser";
+    return '<li><button class="tile tile--' + t.type + '" data-i="' + i + '" type="button" aria-label="Disc ' + (i + 1) + ": " + (teaser ? "coming soon" : "empty tray") + '">' +
+      '<span class="tile__art"><span class="tile__q" aria-hidden="true">' + (teaser ? "?" : "") + "</span></span>" +
+      n + '<b class="tile__t"' + (teaser ? ' data-scramble="COMING SOON"' : "") + ">" + (teaser ? "COMING SOON" : "NO DISC") + "</b>" +
+      '<span class="tile__s">' + (teaser ? "WRITING..." : "EMPTY TRAY") + "</span></button></li>";
+  }
+
+  function stageInfoHTML(t) {
+    if (t.type === "game") {
+      var g = t.game, l = g.links || {};
+      return '<p class="stage__serial">' + esc([g.serial, "PAL"].filter(Boolean).join(" · ")) + "</p>" +
+        '<h2 class="stage__title" style="--chars:' + Math.max(5, String(g.title).length) + '">' + esc(g.title) + "</h2>" +
+        '<p class="stage__tag">' + esc(g.tagline) + "</p>" +
+        '<ul class="chips">' +
+          '<li class="chip chip--ok">' + esc(g.statusLabel || g.status) + "</li>" +
+          (g.genre ? '<li class="chip">' + esc(g.genre) + "</li>" : "") +
+          '<li class="chip">' + esc(g.blocks || 1) + " BLOCKS</li>" +
+        "</ul>" +
+        '<div class="stage__cta">' +
+          '<a class="btn btn--primary" href="#/game/' + esc(g.id) + '"><i class="pad pad--x"></i>LOAD ' + esc(g.title) + "</a>" +
+          (l.demo ? '<a class="btn" href="' + esc(l.demo) + '" target="_blank" rel="noopener">PLAY DEMO &gt;&gt;</a>' : "") +
+        "</div>";
     }
-    if (s.type === "corrupt") {
-      return '<p class="info__k is-bad">ERROR 0x' + esc(s.code) + "</p>" +
-        '<h2 class="info__title" data-scramble="CORRUPTED">CORRUPTED</h2>' +
-        '<p class="info__tag">This save could not be read. It was probably a better game anyway.</p>' +
-        '<dl class="info__rows"><dt>FORMAT?</dt><dd>NO</dd></dl>';
+    if (t.type === "teaser") {
+      return '<p class="stage__serial is-bad">BLOCK RESERVED</p>' +
+        '<h2 class="stage__title is-dim" data-scramble="COMING SOON" style="--chars:11">COMING SOON</h2>' +
+        '<p class="stage__tag">Something is being written to this disc. Do not switch off the power.</p>';
     }
-    return '<p class="info__k">FREE BLOCK</p><h2 class="info__title">NO DATA</h2>' +
-      '<p class="info__tag">Empty. Room for the next one.</p>';
+    return '<p class="stage__serial">TRAY OPEN</p><h2 class="stage__title is-dim" style="--chars:7">NO DISC</h2>' +
+      '<p class="stage__tag">Empty. Room for the next one.</p>';
+  }
+
+  // Static noise texture for trays without a cover.
+  function noiseTex(seed) {
+    var c = document.createElement("canvas"); c.width = c.height = 24;
+    var x = c.getContext("2d"), cs = getComputedStyle(document.documentElement);
+    var cols = [cs.getPropertyValue("--panel"), cs.getPropertyValue("--line"), cs.getPropertyValue("--bg"), cs.getPropertyValue("--primary")];
+    for (var i = 0; i < 576; i++) {
+      seed = (seed * 9301 + 49297) % 233280;
+      x.fillStyle = cols[Math.floor(seed / 233280 * (i % 7 ? 3 : 4))];
+      x.fillRect(i % 24, (i / 24) | 0, 1, 1);
+    }
+    return c;
+  }
+
+  var texCache = {};
+  function texFor(t, cb) {
+    if (t.type !== "game" || !t.game.cover) return cb(noiseTex(t.type === "teaser" ? 7 : 3));
+    var src = t.game.cover;
+    if (texCache[src]) return cb(texCache[src]);
+    var img = new Image();
+    img.onload = function () { texCache[src] = img; cb(img); };
+    img.onerror = function () { cb(noiseTex(5)); };
+    img.src = src;
   }
 
   function renderHome() {
     var card = buildSlots();
-    var cols = 3;
+    var reel = buildReel();
+    var news = (SITE.news && SITE.news.length) ? SITE.news :
+      GAMES.map(function (g) { return g.title + ": " + (g.statusLabel || g.status); });
+    var crawl = news.map(esc).join(" &nbsp;+++&nbsp; ") + " &nbsp;+++&nbsp; ";
+    var yt = SITE.links.youtube.split("@")[1] || "";
+
     screen.innerHTML =
-      '<section class="home">' +
-        '<div class="home__id">' +
+      '<section class="hub">' +
+        '<header class="hub__head">' +
           '<h1 class="sr-only">' + esc(SITE.name) + "</h1>" +
-          '<canvas class="home__logo" width="220" height="80" role="img" aria-label="' + esc(SITE.name) + ' logo"></canvas>' +
-          '<p class="home__tag">' + esc(SITE.tagline) + "</p>" +
-          '<h2 class="home__h">DISCS</h2>' +
-          '<ul class="discs">' + GAMES.map(function (g) {
-            return '<li><a class="disc" href="#/game/' + esc(g.id) + '">' +
-              iconImg(g, "disc__icon") +
-              '<span class="disc__t">' + esc(g.title) + "</span>" +
-              '<span class="disc__s">' + esc([g.kind, g.statusLabel || g.status].filter(Boolean).join(" · ")) + "</span>" +
-              '<span class="disc__go" aria-hidden="true">LOAD &gt;</span>' +
-              "</a></li>";
-          }).join("") + "</ul>" +
-          '<h2 class="home__h">ELSEWHERE</h2>' +
-          '<ul class="home__links">' +
-            '<li><a href="' + esc(SITE.links.itch) + '" rel="noopener" target="_blank"><b>ITCH.IO</b><span>' + esc(hostOf(SITE.links.itch)) + "</span></a></li>" +
-            '<li><a href="' + esc(SITE.links.youtube) + '" rel="noopener" target="_blank"><b>YOUTUBE</b><span>@' + esc(SITE.links.youtube.split("@")[1] || "") + "</span></a></li>" +
-            '<li><a href="#/about"><b>CONTACT</b><span>about + email</span></a></li>' +
+          '<canvas class="hub__logo" width="220" height="80" role="img" aria-label="' + esc(SITE.name) + ' logo"></canvas>' +
+          '<p class="hub__tag">' + esc(SITE.tagline) + "</p>" +
+          '<dl class="hub__stamp">' +
+            (SITE.founded ? "<dt>EST.</dt><dd>" + esc(SITE.founded) + "</dd>" : "") +
+            "<dt>BASE</dt><dd>" + esc(SITE.location) + "</dd>" +
+            "<dt>STAFF</dt><dd>1 HUMAN</dd>" +
+          "</dl>" +
+        "</header>" +
+        '<div class="stage">' +
+          '<div class="stage__view">' +
+            '<canvas class="stage__cv" width="240" height="168" aria-hidden="true"></canvas>' +
+            '<span class="stage__k">NOW SHOWING</span>' +
+          "</div>" +
+          '<div class="stage__info" aria-live="polite"></div>' +
+        "</div>" +
+        '<div class="reel">' +
+          '<div class="reel__head"><h2>DISC SELECT</h2><span>POINT TO PREVIEW &middot; CLICK TO LOAD</span></div>' +
+          '<ol class="reel__list">' + reel.map(tileHTML).join("") + "</ol>" +
+        "</div>" +
+        '<div class="hub__foot">' +
+          '<div class="mc">' +
+            '<span class="mc__k">MEMORY CARD 1</span>' +
+            '<ol class="mc__bar" aria-label="Memory card 1: ' + (card.total - card.free) + " of " + card.total + ' blocks used">' + card.slots.map(cellHTML).join("") + "</ol>" +
+            '<span class="mc__free">' + card.free + "/" + card.total + " FREE</span>" +
+          "</div>" +
+          '<ul class="hub__links">' +
+            '<li><a class="btn" href="' + esc(SITE.links.itch) + '" target="_blank" rel="noopener">ITCH.IO</a></li>' +
+            '<li><a class="btn" href="' + esc(SITE.links.youtube) + '" target="_blank" rel="noopener">YOUTUBE @' + esc(yt) + "</a></li>" +
+            '<li><a class="btn" href="#/about">CONTACT</a></li>' +
           "</ul>" +
         "</div>" +
-        '<div class="card">' +
-          '<div class="card__head"><h2>MEMORY CARD 1</h2><span>' + card.free + "/" + card.total + " FREE</span></div>" +
-          '<ol class="card__grid" role="grid" aria-label="Memory card. Use arrow keys to move, Enter to load." style="--cols:' + cols + '">' +
-            card.slots.map(slotHTML).join("") +
-          "</ol>" +
-        "</div>" +
-        '<aside class="info" aria-live="polite"></aside>' +
-        '<p class="home__card2" aria-hidden="true">MEMORY CARD 2 <span>NOT INSERTED</span></p>' +
+        '<div class="ticker"><p class="ticker__run"><span>' + crawl + '</span><span aria-hidden="true">' + crawl + "</span></p></div>" +
       "</section>";
 
-    var slotsEl = $$(".slot", screen);
-    var info = $(".info", screen);
-    var sel = -1, stopScramble = function () {};
+    var tiles = $$(".tile", screen);
+    var info = $(".stage__info", screen);
+    var cv = $(".stage__cv", screen);
+    var sel = -1, stopScramble = function () {}, stage = null, tileScr = [];
 
-    function select(i, focus) {
-      if (i === sel) { if (focus) slotsEl[i].focus(); return; }
-      if (sel >= 0) { slotsEl[sel].classList.remove("is-sel"); slotsEl[sel].tabIndex = -1; }
+    // Scramble the COMING SOON tile titles.
+    $$(".tile [data-scramble]", screen).forEach(function (el) { tileScr.push(FX.scramble(el, el.dataset.scramble, 0.15)); });
+    onCleanup(function () { tileScr.forEach(function (f) { f(); }); stopScramble(); if (stage) stage.stop(); });
+
+    function colors() {
+      var cs = getComputedStyle(document.documentElement);
+      return { far: cs.getPropertyValue("--panel"), line: cs.getPropertyValue("--primary"), hz: cs.getPropertyValue("--accent") };
+    }
+    var floorCols = colors();
+
+    function select(i) {
+      if (i === sel) return;
       sel = i;
-      var el = slotsEl[i];
-      el.classList.add("is-sel"); el.tabIndex = 0;
-      if (focus) el.focus();
+      tiles.forEach(function (el, k) { el.classList.toggle("is-sel", k === i); });
       stopScramble();
-      info.innerHTML = infoHTML(card.slots[i]);
-      info.dataset.type = card.slots[i].type;
+      info.innerHTML = stageInfoHTML(reel[i]);
+      info.dataset.type = reel[i].type;
       var sc = $("[data-scramble]", info);
       stopScramble = sc ? FX.scramble(sc, sc.dataset.scramble) : function () {};
+      texFor(reel[i], function (tex) {
+        if (!cv.isConnected || sel !== i) return;
+        if (!stage) {
+          stage = FX.quad(cv, tex, {
+            mode: "show", fill: 0.56, oy: 0.4,
+            before: function (c, t, w, h) { FX.floor(c, t, w, h, floorCols); }
+          }).start();
+        } else stage.setTexture(tex);
+      });
     }
-    onCleanup(function () { stopScramble(); });
 
-    slotsEl.forEach(function (el, i) {
+    tiles.forEach(function (el, i) {
       el.addEventListener("mouseenter", function () { if (sel !== i) { FX.sound.move(); select(i); } });
       el.addEventListener("focus", function () { select(i); });
       el.addEventListener("click", function (e) {
-        var s = card.slots[i];
-        if (s.type === "game" || s.type === "link") { FX.sound.select(); return; } // link navigates
+        if (reel[i].type === "game") { FX.sound.select(); return; } // the link loads the game
         e.preventDefault();
-        if (s.type === "empty") FX.sound.move(); else FX.sound.error();
-        select(i, true);
+        FX.sound.error();
+        select(i);
         el.classList.remove("is-shake"); void el.offsetWidth; el.classList.add("is-shake");
       });
     });
-
-    $(".card__grid", screen).addEventListener("keydown", function (e) {
-      var cur = sel < 0 ? 0 : sel, next = cur, last = slotsEl.length - 1;
-      var colsNow = parseInt(getComputedStyle(e.currentTarget).getPropertyValue("--cols-now"), 10) || cols;
-      switch (e.key) {
-        case "ArrowRight": next = Math.min(last, cur + 1); break;
-        case "ArrowLeft": next = Math.max(0, cur - 1); break;
-        case "ArrowDown": next = Math.min(last, cur + colsNow); break;
-        case "ArrowUp": next = Math.max(0, cur - colsNow); break;
-        case "Home": next = 0; break;
-        case "End": next = last; break;
-        case " ": e.preventDefault(); slotsEl[cur].click(); return;
-        default: return;
-      }
+    $(".reel__list", screen).addEventListener("keydown", function (e) {
+      var d = e.key === "ArrowRight" || e.key === "ArrowDown" ? 1 : e.key === "ArrowLeft" || e.key === "ArrowUp" ? -1 : 0;
+      if (!d) return;
       e.preventDefault();
-      if (next !== cur) FX.sound.move();
-      select(next, true);
+      var next = Math.max(0, Math.min(tiles.length - 1, (sel < 0 ? 0 : sel) + d));
+      if (next !== sel) FX.sound.move();
+      tiles[next].focus();
     });
 
-    // Start on the most recently visited game, else block 1.
     var start = 0;
-    if (current.lastGame) card.slots.some(function (s, i) { if (s.game && s.game.id === current.lastGame && s.type === "game") { start = i; return true; } });
+    if (current.lastGame) reel.some(function (t, i) { if (t.game && t.game.id === current.lastGame) { start = i; return true; } });
     select(start);
 
-    var canvas = $(".home__logo", screen);
+    var logo = $(".hub__logo", screen);
     FX.logoTexture(SITE, SITE.theme).then(function (tex) {
-      if (!canvas.isConnected) return;
-      var q = FX.quad(canvas, tex, { mode: "sway", fill: 0.92 }).start();
+      if (!logo.isConnected) return;
+      var q = FX.quad(logo, tex, { mode: "sway", fill: 0.92 }).start();
       onCleanup(q.stop);
     });
 
-    return { title: SITE.name + " — memory card", crumb: "MEMORY CARD 1", focus: slotsEl[start] };
+    return { title: SITE.name + " — disc select", focus: tiles[start] };
   }
 
   /* ---- GAME PAGE -------------------------------------------------------- */
@@ -273,6 +319,8 @@
   function renderGame(g, sectionId) {
     var secs = sectionsFor(g);
     var links = g.links || {};
+    var shots = g.screenshots || [];
+    var bg = g.heroImage || (shots[0] && shots[0].src) || (g.trailer && g.trailer.poster) || "";
     var html = [];
     var n = 0;
 
@@ -286,20 +334,31 @@
             '<span class="trailer__play"><i class="pad pad--x"></i>PLAY TRAILER</span>' +
           "</button></div>";
       } else if (id === "screens") {
-        body = '<ul class="gallery">' + g.screenshots.map(function (sh, i) {
-          return '<li><button class="gallery__btn" type="button" data-i="' + i + '" aria-label="Open screenshot ' + (i + 1) + ": " + esc(sh.alt) + '">' +
-            '<img src="' + esc(sh.src) + '" alt="' + esc(sh.alt) + '" loading="lazy" decoding="async" width="1280" height="720">' +
-            '<span class="gallery__n" aria-hidden="true">' + pad2(i + 1) + "</span></button></li>";
-        }).join("") + "</ul>";
+        body = '<div class="viewer">' +
+            '<button class="viewer__big" type="button" aria-label="Open screenshot full size">' +
+              '<img src="' + esc(shots[0].src) + '" alt="' + esc(shots[0].alt) + '" width="1280" height="720" decoding="async">' +
+              '<span class="viewer__n">' + pad2(1) + " / " + pad2(shots.length) + "</span>" +
+              '<span class="viewer__zoom">FULL SIZE</span>' +
+            "</button>" +
+            '<ol class="strip">' + shots.map(function (sh, i) {
+              return '<li><button class="strip__btn' + (i ? "" : " is-on") + '" type="button" data-i="' + i + '" aria-label="Show screenshot ' + (i + 1) + '"' + (i ? "" : ' aria-current="true"') + ">" +
+                '<img src="' + esc(sh.src) + '" alt="" loading="lazy" decoding="async" width="1280" height="720"></button></li>';
+            }).join("") + "</ol>" +
+          "</div>";
       } else if (id === "features") {
-        body = '<ol class="feats">' + g.features.map(function (f, i) {
-          return '<li><span class="feats__n" aria-hidden="true">' + pad2(i + 1) + "</span><h3>" + esc(f.title) + "</h3><p>" + esc(f.text) + "</p></li>";
+        body = '<ol class="inv">' + g.features.map(function (f, i) {
+          return '<li class="inv__slot"><span class="inv__n" aria-hidden="true">' + pad2(i + 1) + "</span><h3>" + esc(f.title) + "</h3><p>" + esc(f.text) + "</p></li>";
         }).join("") + "</ol>";
       } else if (id === "demo") {
-        body = '<div class="demo">' +
-          '<p class="demo__k">INSERT DISC</p>' +
-          '<a class="btn btn--big btn--primary" href="' + esc(links.demo) + '" target="_blank" rel="noopener"><i class="pad pad--x"></i>' + esc(links.demoLabel || "PLAY THE DEMO") + "</a>" +
-          '<p class="demo__meta">FREE · ' + esc((g.platforms || []).join(" / ").toUpperCase()) + " · " + esc(hostOf(links.demo).toUpperCase()) + "</p>" +
+        var noTarget = links.devlog ? "devlog" : (g.signup ? "signup" : "");
+        body = '<div class="cont">' +
+          '<p class="cont__q">CONTINUE?</p>' +
+          '<p class="cont__count" aria-hidden="true">9</p>' +
+          '<div class="cont__btns">' +
+            '<a class="btn btn--big btn--primary" href="' + esc(links.demo) + '" target="_blank" rel="noopener"><i class="pad pad--x"></i>YES: ' + esc(links.demoLabel || "PLAY THE DEMO") + "</a>" +
+            (noTarget ? '<a class="btn" href="#/game/' + esc(g.id) + "/" + noTarget + '" data-go="' + noTarget + '">NO</a>' : "") +
+          "</div>" +
+          '<p class="cont__meta">FREE · ' + esc((g.platforms || []).join(" / ").toUpperCase()) + " · " + esc(hostOf(links.demo).toUpperCase()) + "</p>" +
           "</div>";
       } else if (id === "devlog") {
         body = '<div class="devlog"><p>' + esc(links.devlogText || "Follow development on YouTube.") + "</p>" +
@@ -319,46 +378,46 @@
           "</form>";
       }
       html.push('<section class="sec" id="sec-' + id + '" data-sec="' + id + '" aria-labelledby="h-' + id + '">' +
-        secHead(n, s[1]).replace('<h2 class="sec__h"', '<h2 class="sec__h" id="h-' + id + '"') + body + "</section>");
+        '<h2 class="sec__h" id="h-' + id + '"><span class="sec__n">' + pad2(n) + "</span><span>" + esc(s[1]) + "</span></h2>" +
+        '<div class="sec__body">' + body + "</div></section>");
     });
 
+    var hud = [["STATUS", g.statusLabel || g.status, "is-ok"], ["GENRE", g.genre], ["PLATFORM", g.platforms && g.platforms.join(", ")],
+      ["PLAYERS", "1"], ["BLOCKS", g.blocks || 1], ["LAST SAVE", g.saveDate && g.saveDate.replace(/-/g, ".")]]
+      .filter(function (r) { return r[1]; });
+
     screen.innerHTML =
-      '<article class="game">' +
-        '<nav class="game__menu" aria-label="' + esc(g.title) + ' sections">' +
-          '<a class="game__back" href="#/"><i class="pad pad--tri"></i>MEMORY CARD</a>' +
+      '<article class="gm">' +
+        '<header class="gm__hero">' +
+          (bg ? '<div class="gm__bg" aria-hidden="true"><img src="' + esc(bg) + '" alt="" width="1280" height="720"></div>' : "") +
+          '<div class="gm__in">' +
+            '<p class="gm__serial">' + esc([g.serial, "PAL", "DISC 1/1"].filter(Boolean).join(" · ")) + "</p>" +
+            '<h1 class="gm__title" tabindex="-1" style="--chars:' + Math.max(4, String(g.title).length) + '">' + esc(g.title) + "</h1>" +
+            '<p class="gm__tag">' + esc(g.tagline) + "</p>" +
+            (g.intro ? '<p class="gm__intro">' + esc(g.intro) + "</p>" : "") +
+            '<div class="gm__cta">' +
+              (links.demo ? '<a class="press" href="' + esc(links.demo) + '" target="_blank" rel="noopener"><span>PRESS <i class="pad pad--x"></i> TO ' + esc(links.demoLabel || "PLAY THE DEMO") + "</span></a>" : "") +
+              (g.trailer ? '<a class="btn" href="#/game/' + esc(g.id) + '/trailer" data-go="trailer">WATCH TRAILER</a>' : "") +
+            "</div>" +
+          "</div>" +
+          (g.cover ? '<figure class="case gm__case"><span class="case__spine" aria-hidden="true">' + esc(g.title) + " · ARKINI</span>" +
+            '<img src="' + esc(g.cover) + '" alt="' + esc(g.title) + ' cover art" width="600" height="600"></figure>' : "") +
+        "</header>" +
+        '<dl class="hud">' + hud.map(function (r) {
+          return '<div class="hud__c"><dt>' + r[0] + '</dt><dd class="' + (r[2] || "") + '">' + esc(r[1]) + "</dd></div>";
+        }).join("") + "</dl>" +
+        (secs.length ? '<nav class="gm__nav" aria-label="' + esc(g.title) + ' sections">' +
           "<ol>" + secs.map(function (s) {
             return '<li><a href="#/game/' + esc(g.id) + "/" + s[0] + '" data-go="' + s[0] + '">' + s[1] + "</a></li>";
           }).join("") + "</ol>" +
-        "</nav>" +
-        '<div class="game__body">' +
-          '<header class="game__head">' +
-            '<div class="game__text">' +
-              '<p class="game__serial">' + esc([g.serial, "PAL", "DISC 1/1"].filter(Boolean).join(" · ")) + "</p>" +
-              '<h1 class="game__title" tabindex="-1" style="--chars:' + Math.max(4, String(g.title).length) + '">' + esc(g.title) + "</h1>" +
-              '<p class="game__tag">' + esc(g.tagline) + "</p>" +
-              (g.intro ? '<p class="game__intro">' + esc(g.intro) + "</p>" : "") +
-              '<div class="game__cta">' +
-                (links.demo ? '<a class="btn btn--primary" href="' + esc(links.demo) + '" target="_blank" rel="noopener"><i class="pad pad--x"></i>' + esc(links.demoLabel || "PLAY THE DEMO") + "</a>" : "") +
-                (g.trailer ? '<a class="btn" href="#/game/' + esc(g.id) + '/trailer" data-go="trailer">TRAILER</a>' : "") +
-              "</div>" +
-            "</div>" +
-            (g.cover ? '<figure class="case"><span class="case__spine" aria-hidden="true">' + esc(g.title) + " · ARKINI</span>" +
-              '<img src="' + esc(g.cover) + '" alt="' + esc(g.title) + ' cover art" width="600" height="600"></figure>' : "") +
-            '<dl class="game__file">' +
-              "<dt>STATUS</dt><dd class=\"is-ok\">" + esc(g.statusLabel || g.status) + "</dd>" +
-              (g.genre ? "<dt>GENRE</dt><dd>" + esc(g.genre) + "</dd>" : "") +
-              (g.platforms ? "<dt>PLATFORM</dt><dd>" + esc(g.platforms.join(", ")) + "</dd>" : "") +
-              "<dt>PLAYERS</dt><dd>1</dd>" +
-            "</dl>" +
-          "</header>" +
-          html.join("") +
-          discNav(g) +
-        "</div>" +
+          '<div class="prog" aria-hidden="true"><span>PROGRESS</span><ol>' + new Array(16).join("<li></li>") + "</ol></div>" +
+        "</nav>" : "") +
+        '<div class="gm__body">' + html.join("") + discNav(g) + "</div>" +
       "</article>";
 
     wireGame(g);
     if (sectionId) requestAnimationFrame(function () { goSection(sectionId, false); });
-    return { title: g.title + " — " + SITE.name, crumb: "MEMORY CARD 1 / " + g.title, focus: $(".game__title", screen), keepScroll: !!sectionId };
+    return { title: g.title + " — " + SITE.name, focus: $(".gm__title", screen), keepScroll: !!sectionId };
   }
 
   // End-of-page navigation: back to the card, plus previous/next disc.
@@ -393,7 +452,7 @@
     });
 
     // Scroll-spy for the menu cursor.
-    var menuLinks = $$(".game__menu [data-go]", screen);
+    var menuLinks = $$(".gm__nav [data-go]", screen);
     if ("IntersectionObserver" in window && menuLinks.length) {
       var io = new IntersectionObserver(function (entries) {
         entries.forEach(function (en) {
@@ -401,7 +460,7 @@
           menuLinks.forEach(function (a) {
             var on = a.dataset.go === en.target.dataset.sec;
             a.classList.toggle("is-on", on);
-            if (on) { a.setAttribute("aria-current", "true"); if (a.scrollIntoView && innerWidth < 900) a.scrollIntoView({ block: "nearest", inline: "nearest" }); }
+            if (on) { a.setAttribute("aria-current", "true"); var ol = a.closest("ol"); if (ol) ol.scrollLeft = a.offsetLeft - ol.offsetLeft - 16; }
             else a.removeAttribute("aria-current");
           });
         });
@@ -425,21 +484,67 @@
         'allow="autoplay; encrypted-media; picture-in-picture; fullscreen" allowfullscreen loading="lazy"></iframe>';
     });
 
-    // Gallery thumbnails get the PS1 15-bit treatment (if enabled).
+    // Screenshot viewer: strip picks, big image opens the lightbox.
+    // Strip thumbnails and the hero backdrop get the PS1 15-bit treatment.
     var psx = g.psxThumbs != null ? g.psxThumbs : SITE.psxThumbs !== false;
-    $$(".gallery__btn", screen).forEach(function (btn) {
-      var img = $("img", btn);
-      if (psx) {
-        var run = function () {
-          if (img.dataset.psx) return;
-          img.dataset.psx = "1";
-          var url = FX.psxify(img, 320, 32);
-          if (url) { img.src = url; img.classList.add("is-psx"); }
-        };
-        if (img.complete && img.naturalWidth) run(); else img.addEventListener("load", run, { once: true });
-      }
-      btn.addEventListener("click", function () { FX.sound.select(); Lightbox.open(g, +btn.dataset.i); });
+    function psxImg(img, w) {
+      if (!psx) return;
+      var run = function () {
+        if (img.dataset.psx) return;
+        img.dataset.psx = "1";
+        var url = FX.psxify(img, w, 32);
+        if (url) img.src = url;
+      };
+      if (img.complete && img.naturalWidth) run(); else img.addEventListener("load", run, { once: true });
+    }
+    var heroImg = $(".gm__bg img", screen);
+    if (heroImg) psxImg(heroImg, 320);
+    var shown = 0, big = $(".viewer__big", screen);
+    $$(".strip__btn", screen).forEach(function (btn) {
+      psxImg($("img", btn), 160);
+      btn.addEventListener("click", function () {
+        shown = +btn.dataset.i;
+        var sh = g.screenshots[shown], img = $("img", big);
+        FX.sound.move();
+        img.src = sh.src; img.alt = sh.alt;
+        $(".viewer__n", big).textContent = pad2(shown + 1) + " / " + pad2(g.screenshots.length);
+        $$(".strip__btn", screen).forEach(function (b) {
+          var on = b === btn;
+          b.classList.toggle("is-on", on);
+          if (on) b.setAttribute("aria-current", "true"); else b.removeAttribute("aria-current");
+        });
+      });
     });
+    if (big) big.addEventListener("click", function () { FX.sound.select(); Lightbox.open(g, shown); });
+
+    // CONTINUE? countdown, 9 to 0, then round again.
+    var count = $(".cont__count", screen);
+    if (count && !FX.reduced()) {
+      var c = 9;
+      var cd = setInterval(function () {
+        c = c <= 0 ? 9 : c - 1;
+        count.textContent = c;
+        count.classList.toggle("is-zero", c === 0);
+      }, 900);
+      onCleanup(function () { clearInterval(cd); });
+    }
+
+    // Level-progress meter in the section bar.
+    var cells = $$(".prog li", screen);
+    if (cells.length) {
+      var body = $(".gm__body", screen), ticking = false;
+      var upd = function () {
+        ticking = false;
+        var r = body.getBoundingClientRect();
+        var p = Math.max(0, Math.min(1, -r.top / Math.max(1, r.height - innerHeight)));
+        var lit = Math.round(p * cells.length);
+        cells.forEach(function (li, k) { li.className = k < lit ? "on" : ""; });
+      };
+      var onScroll = function () { if (!ticking) { ticking = true; requestAnimationFrame(upd); } };
+      window.addEventListener("scroll", onScroll, { passive: true });
+      onCleanup(function () { window.removeEventListener("scroll", onScroll); });
+      upd();
+    }
 
     // Email signup.
     var form = $(".save", screen);

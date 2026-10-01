@@ -23,6 +23,14 @@ window.ARKINI = {
     // Paste a form endpoint (Buttondown, Formspree, Mailchimp...) to make it real.
     signupEndpoint: "",
 
+    // Lines for the news ticker at the bottom of the home screen.
+    // Leave empty to show each game's status instead.
+    news: [
+      "KRAVN demo out now on itch.io",
+      "New devlogs on YouTube: @arkinigames",
+      "Made in Aarhus, Denmark"
+    ],
+
     // Optional: path to a logo image (PNG with transparency, ~200x72).
     // When null, the logo is drawn from the pixel font.
     logoImage: null,
