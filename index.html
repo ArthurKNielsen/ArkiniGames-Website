@@ -1,0 +1,111 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Arkini Games — low-poly games from Aarhus</title>
+<meta name="description" content="Arkini Games is a one-person indie studio in Aarhus, Denmark. Now loading: KRAVN, a PSX-era boomer shooter. Free demo on itch.io.">
+<meta name="theme-color" content="#0b0807">
+<meta name="color-scheme" content="dark">
+
+<!-- Open Graph / social preview. Replace SITE_URL below with your real domain. -->
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Arkini Games">
+<meta property="og:title" content="Arkini Games — KRAVN demo out now">
+<meta property="og:description" content="A PSX-era boomer shooter made by one person in Aarhus, Denmark. Play the free demo on itch.io.">
+<meta property="og:url" content="https://arkinigames.com/">
+<meta property="og:image" content="https://arkinigames.com/assets/og/og-image-1200x630.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="Arkini Games logo next to a dithered red corridor from KRAVN">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="Arkini Games — KRAVN demo out now">
+<meta name="twitter:description" content="A PSX-era boomer shooter made by one person in Aarhus, Denmark.">
+<meta name="twitter:image" content="https://arkinigames.com/assets/og/og-image-1200x630.png">
+
+<link rel="icon" type="image/png" sizes="32x32" href="assets/favicon-32x32.png">
+<link rel="preload" href="assets/fonts/silkscreen-400-latin.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="preload" href="assets/fonts/vt323-latin.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="stylesheet" href="css/style.css">
+
+<!-- Skip the boot before first paint if it already played this session
+     or the visitor asked for reduced motion. -->
+<script>
+  (function () {
+    var d = document.documentElement, booted = false, crt = true;
+    try { booted = sessionStorage.getItem("arkini.booted") === "1"; } catch (e) {}
+    try { crt = localStorage.getItem("arkini.crt") !== "0"; } catch (e) {}
+    if (booted || matchMedia("(prefers-reduced-motion: reduce)").matches) d.classList.add("no-boot");
+    if (!crt) d.classList.add("crt-off");
+    d.classList.add("js");
+  })();
+</script>
+</head>
+<body>
+
+<a class="skip" href="#screen">Skip to content</a>
+
+<!-- BOOT SEQUENCE ------------------------------------------------------ -->
+<div id="boot" class="boot" aria-hidden="true">
+  <canvas class="boot__logo" width="200" height="72"></canvas>
+  <div class="boot__lines"></div>
+  <p class="boot__skip">PRESS ANY BUTTON</p>
+</div>
+
+<!-- CONSOLE SHELL ------------------------------------------------------ -->
+<div class="console">
+  <header class="bar bar--top">
+    <a class="bar__home" href="#/">ARKINI<span>SYS</span></a>
+    <nav class="bar__path" aria-label="Breadcrumb"><span id="crumb">MEMORY CARD 1</span></nav>
+    <div class="bar__toggles">
+      <a class="bar__btn" href="#/about">CONFIG</a>
+      <button class="bar__btn" id="snd" type="button" aria-pressed="false">SND <b>OFF</b></button>
+    </div>
+  </header>
+
+  <main id="screen" class="screen" tabindex="-1">
+    <noscript>
+      <section class="noscript">
+        <h1>Arkini Games</h1>
+        <p>One-person studio in Aarhus, Denmark. The console needs JavaScript to boot, but here are the goods:</p>
+        <ul>
+          <li><a href="https://arkinigames.itch.io/kravn">KRAVN</a>, a PSX-era boomer shooter. Free demo on itch.io.</li>
+          <li><a href="https://arkinigames.itch.io">itch.io/arkinigames</a></li>
+          <li><a href="https://www.youtube.com/@arkinigames">YouTube @arkinigames</a></li>
+        </ul>
+      </section>
+    </noscript>
+  </main>
+
+  <footer class="bar bar--bottom" aria-hidden="true">
+    <span class="hint"><i class="pad pad--x"></i>SELECT</span>
+    <span class="hint"><i class="pad pad--tri"></i>BACK</span>
+    <span class="bar__region">PAL · AARHUS DK</span>
+  </footer>
+</div>
+
+<!-- LOADING (disc spin) ------------------------------------------------ -->
+<div id="loader" class="loader" aria-hidden="true">
+  <canvas class="loader__disc" width="96" height="96"></canvas>
+  <p class="loader__txt">NOW LOADING<span class="dots"></span></p>
+</div>
+
+<!-- LIGHTBOX ----------------------------------------------------------- -->
+<dialog id="lightbox" class="lightbox" aria-label="Screenshot viewer">
+  <figure class="lightbox__fig">
+    <img class="lightbox__img" alt="">
+    <figcaption class="lightbox__cap"></figcaption>
+  </figure>
+  <button class="lightbox__btn lightbox__prev" type="button" aria-label="Previous screenshot">&lt;</button>
+  <button class="lightbox__btn lightbox__next" type="button" aria-label="Next screenshot">&gt;</button>
+  <button class="lightbox__close" type="button" aria-label="Close viewer">CLOSE <i class="pad pad--tri"></i></button>
+</dialog>
+
+<!-- CRT overlay: purely visual, ignores the pointer -->
+<div class="crt" aria-hidden="true"><div class="crt__roll"></div></div>
+
+<script src="js/games.js"></script>
+<script src="js/fx.js"></script>
+<script src="js/app.js"></script>
+</body>
+</html>
