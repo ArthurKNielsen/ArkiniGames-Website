@@ -151,6 +151,10 @@ one of the services above.)
 
 ## Deploying
 
+**After every update:** in `index.html`, bump the `?v=` number on the
+stylesheet and the four scripts (e.g. `?v=6` → `?v=7`). Browsers then grab
+the new files right away instead of showing a cached old version.
+
 The site is a folder of static files with relative paths, so it runs anywhere.
 
 - **GitHub Pages:** Settings → Pages → deploy from branch `main`, folder `/`.

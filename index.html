@@ -26,7 +26,7 @@
 <link rel="icon" type="image/png" sizes="32x32" href="assets/favicon-32x32.png">
 <link rel="preload" href="assets/fonts/silkscreen-400-latin.woff2" as="font" type="font/woff2" crossorigin>
 <link rel="preload" href="assets/fonts/vt323-latin.woff2" as="font" type="font/woff2" crossorigin>
-<link rel="stylesheet" href="css/style.css">
+<link rel="stylesheet" href="css/style.css?v=6">
 
 <!-- Skip the boot before first paint if it already played this session
      or the visitor asked for reduced motion. -->
@@ -104,9 +104,11 @@
 <!-- CRT overlay: purely visual, ignores the pointer -->
 <div class="crt" aria-hidden="true"><div class="crt__roll"></div></div>
 
-<script src="js/games.js"></script>
-<script src="js/fx.js"></script>
-<script src="js/sound.js"></script>
-<script src="js/app.js"></script>
+<!-- Bump ?v= on all five files below after every update so browsers
+     fetch the new versions instead of cached ones. -->
+<script src="js/games.js?v=6"></script>
+<script src="js/fx.js?v=6"></script>
+<script src="js/sound.js?v=6"></script>
+<script src="js/app.js?v=6"></script>
 </body>
 </html>
