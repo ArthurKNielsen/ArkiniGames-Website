@@ -67,12 +67,19 @@
     unlocked = true;
     if (!sfxOn && !musOn) return;
     ac();
+    // Some browsers create the context "suspended"; resume inside the gesture.
+    var p = ctx && ctx.state !== "running" ? ctx.resume() : Promise.resolve();
     if (musOn && Music.queued && !Music.running) Music.play(Music.queued);
-    window.removeEventListener("pointerdown", unlock, true);
-    window.removeEventListener("keydown", unlock, true);
+    // Keep listening until the browser has really let audio run.
+    Promise.resolve(p).then(function () {
+      if (ctx && ctx.state === "running") {
+        UNLOCK_EVENTS.forEach(function (ev) { window.removeEventListener(ev, unlock, true); });
+      }
+    });
   }
-  window.addEventListener("pointerdown", unlock, true);
-  window.addEventListener("keydown", unlock, true);
+  // iOS Safari only allows audio from touchend/click, other browsers from the press.
+  var UNLOCK_EVENTS = ["pointerdown", "touchend", "click", "keydown"];
+  UNLOCK_EVENTS.forEach(function (ev) { window.addEventListener(ev, unlock, true); });
 
   // Quiet the whole thing while the tab is hidden.
   document.addEventListener("visibilitychange", function () {
@@ -128,7 +135,7 @@
   var lastHover = 0;
   FX.sound = {
     isOn: function () { return sfxOn; },
-    set: function (v) { sfxOn = !!v; unlocked = true; store.set("arkini.snd", sfxOn ? "1" : "0"); if (sfxOn) ac(); applyVolumes(); },
+    set: function (v) { sfxOn = !!v; store.set("arkini.snd", sfxOn ? "1" : "0"); if (sfxOn) ac(); applyVolumes(); },
     volume: function (v) {
       if (v == null) return sfxVol;
       sfxVol = num(v, sfxVol); store.set("arkini.sfxvol", sfxVol); applyVolumes();
@@ -344,7 +351,7 @@
   FX.music = {
     isOn: function () { return musOn; },
     set: function (v) {
-      musOn = !!v; unlocked = true; store.set("arkini.mus", musOn ? "1" : "0");
+      musOn = !!v; store.set("arkini.mus", musOn ? "1" : "0");
       if (musOn) { ac(); applyVolumes(); if (Music.queued) { Music.key = null; Music.play(Music.queued); } }
       else { applyVolumes(); Music.stop(); }
     },

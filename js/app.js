@@ -606,6 +606,7 @@
           "<dt>LOCATION</dt><dd>" + esc(SITE.location) + "</dd>" +
           (SITE.founded ? "<dt>EST.</dt><dd>" + esc(SITE.founded) + "</dd>" : "") +
           "<dt>DISCS</dt><dd>" + GAMES.length + "</dd>" +
+          "<dt>SYSTEM</dt><dd>" + esc(((($(".bar__region") || {}).textContent || "").match(/BUILD \d+/) || ["BUILD ?"])[0]) + "</dd>" +
           '<dt>CONTACT</dt><dd><a href="mailto:' + esc(SITE.email) + '">' + esc(SITE.email) + "</a></dd>" +
           '<dt>ITCH.IO</dt><dd><a href="' + esc(SITE.links.itch) + '" target="_blank" rel="noopener">' + esc(hostOf(SITE.links.itch)) + "</a></dd>" +
           '<dt>YOUTUBE</dt><dd><a href="' + esc(SITE.links.youtube) + '" target="_blank" rel="noopener">@' + esc(SITE.links.youtube.split("@")[1] || "") + "</a></dd>" +
