@@ -389,14 +389,13 @@
         '<div class="sec__body">' + body + "</div></section>");
     });
 
-    var hud = [["STATUS", g.statusLabel || g.status, "is-ok"], ["GENRE", g.genre], ["PLATFORM", g.platforms && g.platforms.join(", ")],
-      ["PLAYERS", "1"], ["BLOCKS", g.blocks || 1], ["LAST SAVE", g.saveDate && g.saveDate.replace(/-/g, ".")]]
+    var hud = [["STATUS", g.statusLabel || g.status, "is-ok"], ["GENRE", g.genre], ["PLATFORM", g.platforms && g.platforms.join(", ")]]
       .filter(function (r) { return r[1]; });
 
     screen.innerHTML =
       '<article class="gm">' +
         '<header class="gm__hero">' +
-          (bg ? '<div class="gm__bg" aria-hidden="true"><img src="' + esc(bg) + '" alt="" width="1280" height="720"></div>' : "") +
+          (bg && !g.descent ? '<div class="gm__bg" aria-hidden="true"><img src="' + esc(bg) + '" alt="" width="1280" height="720"></div>' : "") +
           '<div class="gm__in">' +
             '<p class="gm__serial">' + esc([g.serial, "PAL", "DISC 1/1"].filter(Boolean).join(" · ")) + "</p>" +
             '<h1 class="gm__title' + (g.logo ? ' gm__title--logo' : '') + '" tabindex="-1" style="--chars:' + Math.max(4, String(g.title).length) + '">' +
