@@ -615,17 +615,17 @@ ol, ul { list-style: none; margin: 0; padding: 0; }
 /* ---- DESCENT MODE (game pages with descent: {...}) ---------------------- */
 .descent-shaft {
   position: fixed; inset: 0; width: 100vw; height: 100vh; z-index: 0; pointer-events: none;
-  image-rendering: pixelated; opacity: .62;
+  image-rendering: pixelated; opacity: .9;
 }
 .descent-on .console { position: relative; z-index: 1; }
 .descent-on .gm__hero { background: transparent; }
-.descent-on .gm__bg { opacity: .55; }
+.descent-on .gm__bg { opacity: .35; }
 .descent-on .sec { min-height: 85vh; align-content: center; align-items: center; }
 .descent-on .sec__body { align-self: center; }
 .descent-on .sec__h { position: static; }
-.descent-on .sec__body { background: rgba(11, 8, 7, .86); border: 2px solid var(--line); padding: 16px; }
-.descent-on .sec__h { background: rgba(11, 8, 7, .86); padding: 8px 10px; align-self: start; }
-.descent-on .game__foot { background: rgba(11, 8, 7, .9); padding: 20px 16px; margin-top: 30vh; }
+.descent-on .sec__body { background: rgba(11, 8, 7, .95); border: 2px solid var(--line); padding: 16px; box-shadow: 0 0 0 6px rgba(0,0,0,.35); }
+.descent-on .sec__h { background: rgba(11, 8, 7, .95); padding: 8px 10px; align-self: start; }
+.descent-on .game__foot { background: rgba(11, 8, 7, .96); padding: 20px 16px; margin-top: 30vh; }
 .depth { font: 400 16px/1 var(--px); color: var(--accent); white-space: nowrap; font-variant-numeric: tabular-nums; flex: none; }
 .depth b { color: var(--ink); font-weight: 400; }
 .descent-on .prog { display: none; }
@@ -633,7 +633,9 @@ body.descent-shake { animation: dshake .45s steps(6); }
 @keyframes dshake { 20%{transform:translate(-8px,4px)} 40%{transform:translate(7px,-6px)} 60%{transform:translate(-5px,3px)} 80%{transform:translate(3px,-2px)} }
 @media (max-width: 699px) { .depth { font-size: 12px; padding-right: 2px; } }
 
-.abyss { margin-top: 40vh; text-align: center; padding: 28px 16px; background: rgba(11,8,7,.9); border: 2px solid var(--primary); }
+.abyss { margin-top: 40vh; text-align: center; padding: 28px 16px; background: rgba(11,8,7,.96); border: 2px solid var(--primary); }
 .abyss__d { font: 400 12px/1 var(--px); letter-spacing: .25em; color: var(--dim); }
 .abyss__h { font: 700 clamp(28px, 7vw, 56px)/1 var(--px); margin: 12px 0 20px; text-shadow: var(--chroma); }
 .descent-on .game__foot { margin-top: 0; }
+.gm__title--logo { text-shadow: none; animation: none; line-height: 0; margin-bottom: 20px; }
+.gm__logo { display: block; width: min(100%, 620px); height: auto; filter: drop-shadow(4px 4px 0 rgba(0,0,0,.85)); }

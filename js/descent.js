@@ -20,6 +20,7 @@
     alarm:   { a:[64,22,18],    b:[46,15,12],   m:[18,5,4],    f:[4,1,1], alarm: true },
     bottom:  { a:[76,64,54],    b:[60,50,44],   m:[30,24,20],  f:[40,10,8] }
   };
+  var DIM = 0.42, SAT = 0.6;      // keep the shaft quiet behind the page
   var BAY = [0,8,2,10,12,4,14,6,3,11,1,9,15,7,13,5];
   function lerp(a, b, t) { return [a[0]+(b[0]-a[0])*t, a[1]+(b[1]-a[1])*t, a[2]+(b[2]-a[2])*t]; }
   function hash(x, y) { var h = (x * 374761393 + y * 668265263) | 0; h = (h ^ (h >>> 13)) * 1274126177; return ((h ^ (h >>> 16)) >>> 0) / 4294967295; }
@@ -33,16 +34,16 @@
     document.documentElement.classList.add("descent-on");
     var cx = cv.getContext("2d"), LW, LH, img, buf;
     function size() {
-      LW = innerWidth < 700 ? 160 : 224;
+      LW = innerWidth < 700 ? 240 : 400;
       LH = Math.max(90, Math.round(LW * innerHeight / innerWidth));
       cv.width = LW; cv.height = LH; img = cx.createImageData(LW, LH); buf = img.data;
     }
     size(); addEventListener("resize", size);
 
     var parts = [];
-    for (var i = 0; i < 22; i++) parts.push({
+    for (var i = 0; i < 9; i++) parts.push({
       type: i % 7 === 0 ? "stick" : (i % 3 === 0 ? "eye" : "drop"),
-      x: Math.random(), y: Math.random() * 3, p: 0.5 + Math.random() * 1.6, r: Math.random() * 6.28, s: Math.random() < .6 ? 1 : 1.5
+      x: Math.random(), y: Math.random() * 3, p: 0.4 + Math.random() * 0.9, r: Math.random() * 6.28, s: Math.random() < .6 ? 1 : 1.5
     });
     var mouse = { x: .5, y: .5 };
     function onMove(e) { mouse.x = e.clientX / innerWidth; mouse.y = e.clientY / innerHeight; }
@@ -79,15 +80,15 @@
       var dy = scrollY - lastY; lastY = scrollY;
       vel = vel * 0.8 + Math.abs(dy) * 0.2;
       if (dy) clicks(dy);
-      travel += (dy / innerHeight) * 2.2 + (reduce ? 0 : 0.006);
+      travel += (dy / innerHeight) * 1.4 + (reduce ? 0 : 0.0025);
       var mid = scrollY + innerHeight * 0.5, i = 0;
       for (var k = 0; k < sec.length; k++) if (sec[k].el.getBoundingClientRect().top + scrollY <= mid) i = k;
       var r0 = sec[i].el.getBoundingClientRect(), f = 0;
       if (i < sec.length - 1) { var nt = sec[i + 1].el.getBoundingClientRect().top + scrollY, tt = r0.top + scrollY; f = Math.min(1, Math.max(0, (mid - tt) / Math.max(1, nt - tt) - 0.6) / 0.4); }
       var A = PRESETS[sec[i].look] || PRESETS.stone, B = PRESETS[(sec[Math.min(sec.length - 1, i + 1)].look)] || A;
       var pa = lerp(A.a, B.a, f), pb = lerp(A.b, B.b, f), pm = lerp(A.m, B.m, f), pf = lerp(A.f, B.f, f);
-      var alarm = A.alarm ? 0.6 + 0.4 * Math.abs(Math.sin(t * 4)) : 1;
-      var glitch = A.glitch && Math.random() < 0.25;
+      var alarm = A.alarm ? 0.85 + 0.15 * Math.abs(Math.sin(t * 2)) : 1;
+      var glitch = A.glitch && Math.random() < 0.06;
       var cxm = LW / 2 + Math.sin(t * 0.7) * 4, cym = LH / 2 + Math.cos(t * 0.5) * 3, asp = LH / LW;
       for (var y = 0, p = 0; y < LH; y++) {
         var gy = glitch && hash(y, (t * 30) | 0) < 0.08 ? ((hash(y, 1) * 20) | 0) - 10 : 0;
@@ -99,9 +100,11 @@
           var c = (frU < 0.09 || frV < 0.07) ? pm : (hash(row, col) < 0.5 ? pa : pb);
           var shade = (ax > ay ? 1 : 0.82) * (row % 9 === 0 ? 1.25 : 1) * alarm * (0.85 + 0.3 * hash(row * 7, col * 3));
           var fog = Math.min(1, Math.pow(z / 3.2, 0.9)), o = (BAY[(y & 3) * 4 + (x & 3)] / 16 - 0.5) * 14;
-          buf[p] = c[0] * shade * (1 - fog) + pf[0] * fog + o;
-          buf[p + 1] = c[1] * shade * (1 - fog) + pf[1] * fog + o;
-          buf[p + 2] = c[2] * shade * (1 - fog) + pf[2] * fog + o;
+          var R = c[0] * shade * (1 - fog) + pf[0] * fog, G = c[1] * shade * (1 - fog) + pf[1] * fog, Bl = c[2] * shade * (1 - fog) + pf[2] * fog;
+          var L = (R * 0.3 + G * 0.59 + Bl * 0.11) * (1 - SAT), vig = 1 - Math.min(0.6, r * 0.9);
+          buf[p] = (R * SAT + L) * DIM * vig + o * 0.5;
+          buf[p + 1] = (G * SAT + L) * DIM * vig + o * 0.5;
+          buf[p + 2] = (Bl * SAT + L) * DIM * vig + o * 0.5;
           buf[p + 3] = 255;
         }
       }
@@ -110,10 +113,12 @@
       for (var n = 0; n < parts.length; n++) {
         var o2 = parts[n], sy = ((o2.y - travel * o2.p * 0.35) % 3 + 3) % 3;
         var py = (sy / 3) * (LH + 40) - 20, px = o2.x * LW, s = o2.s * (LW < 200 ? 1 : 1.25);
+        cx.globalAlpha = 0.55;
         if (o2.type === "eye") eye(px, py, 3.5 * s);
         else if (o2.type === "stick") stick(px, py, 14 * s, o2.r + t * (0.6 + o2.p) + travel * 0.5);
-        else { cx.fillStyle = "rgb(150,14,10)"; cx.fillRect(Math.round(px), Math.round(py), s, s * (vel > 8 ? 4 : 2)); }
+        else { cx.fillStyle = "rgb(96,12,9)"; cx.fillRect(Math.round(px), Math.round(py), s, s * (vel > 8 ? 4 : 2)); }
       }
+      cx.globalAlpha = 1;
       var max = Math.max(1, document.documentElement.scrollHeight - innerHeight);
       if (opts.depth) opts.depth(Math.round(Math.min(1, scrollY / max) * (opts.maxDepth || 6666)), sec[i].name);
       if (i !== cur) {

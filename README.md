@@ -64,6 +64,7 @@ Games show up on the memory card in the order they're listed.
 | `saveDate` | `YYYY-MM-DD`, shown as LAST SAVE. Use your latest update date. |
 | `icon` | 16×16 PNG, or an array of up to 3 frames (they animate). |
 | `cover` | Square cover art, shown in the jewel case and spun on the loading screen. |
+| `logo` | Optional transparent PNG of the game's logo. Shown on the game page instead of the big title text. |
 | `theme` | Colours for this game's page (see below). |
 | `trailer` | `{ video, youtube, poster, steam }`. `video` is a local .webm/.mp4 (or a list of both, best first) that plays right on the page (the site music pauses while it plays). Or use `youtube` with any YouTube URL or video ID. `steam` adds a "watch the official trailer on Steam" link. |
 | `screenshots` | Array of `{ src, alt }`. Always write a real `alt`. |
@@ -119,6 +120,7 @@ the title screen from the game:
 | `assets/games/kravn/trailer.webm` + `.mp4` | 1280×720 | official gameplay trailer, both formats, each under ~15 MB |
 | `assets/games/kravn/trailer-poster-1280x720.jpg` | 1280×720 | shown before the trailer plays |
 | `assets/games/kravn/cover-600x600.jpg` | 600×600 | title-screen logo over the opening shot |
+| `assets/games/kravn/logo-900.png` | 900 wide | official KRAVN logo, transparent, used as the page title |
 | `assets/games/kravn/icon-16x16-f1..f3.png` | 16×16 | save icon frames (the raven) |
 | `assets/og/og-image-1200x630.png` | 1200×630 | link preview on Discord/Twitter/etc. |
 | `assets/favicon-32x32.png` | 32×32 | browser tab icon |

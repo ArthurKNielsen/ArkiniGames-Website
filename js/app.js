@@ -399,7 +399,8 @@
           (bg ? '<div class="gm__bg" aria-hidden="true"><img src="' + esc(bg) + '" alt="" width="1280" height="720"></div>' : "") +
           '<div class="gm__in">' +
             '<p class="gm__serial">' + esc([g.serial, "PAL", "DISC 1/1"].filter(Boolean).join(" · ")) + "</p>" +
-            '<h1 class="gm__title" tabindex="-1" style="--chars:' + Math.max(4, String(g.title).length) + '">' + esc(g.title) + "</h1>" +
+            '<h1 class="gm__title' + (g.logo ? ' gm__title--logo' : '') + '" tabindex="-1" style="--chars:' + Math.max(4, String(g.title).length) + '">' +
+              (g.logo ? '<img class="gm__logo" src="' + esc(g.logo) + '" alt="' + esc(g.title) + '">' : esc(g.title)) + "</h1>" +
             '<p class="gm__tag">' + esc(g.tagline) + "</p>" +
             (g.intro ? '<p class="gm__intro">' + esc(g.intro) + "</p>" : "") +
             '<div class="gm__cta">' +

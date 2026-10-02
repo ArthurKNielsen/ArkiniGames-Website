@@ -88,6 +88,7 @@ window.ARKINI = {
         "assets/games/kravn/icon-16x16-f3.png"
       ],
       cover: "assets/games/kravn/cover-600x600.jpg",
+      logo: "assets/games/kravn/logo-900.png",  // optional: shown instead of the title text on the game page
 
       // Colours picked from the game itself: rotten stone, torchlight, blood.
       theme: {
