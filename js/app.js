@@ -1,12 +1,3 @@
-/* ==========================================================================
-   ARKINI SYSTEM — APP
-   Hash router + screens: memory card (home), game disc pages, system config.
-   Routes:  #/                      memory card manager
-            #/game/<id>             a game page
-            #/game/<id>/<section>   a game page scrolled to a section
-            #/about                 system config (about / contact / settings)
-   ========================================================================== */
-
 (function () {
   "use strict";
 
@@ -36,7 +27,6 @@
   function onCleanup(fn) { cleanups.push(fn); }
   function isOnScreen(el) { var r = el.getBoundingClientRect(); return r.bottom > 0 && r.top < innerHeight; }
 
-  /* ---- MAIN NAV (top bar): HOME, every game, ABOUT ---------------------- */
   nav.innerHTML = '<a href="#/" data-nav="home">HOME</a>' +
     GAMES.map(function (g) {
       return '<a href="#/game/' + esc(g.id) + '" data-nav="game:' + esc(g.id) + '">' + esc(g.title) + "</a>";
@@ -54,7 +44,6 @@
     });
   }
 
-  /* ---- THEME ------------------------------------------------------------ */
   var VARS = ["bg", "panel", "line", "ink", "dim", "primary", "accent", "ok"];
   function applyTheme(theme) {
     var t = Object.assign({}, SITE.theme, theme || {});
@@ -65,7 +54,6 @@
     return t;
   }
 
-  /* ---- ANIMATED SAVE ICONS (up to 3 frames, like the real thing) -------- */
   function iconImg(game, cls) {
     var f = frames(game.icon);
     if (!f.length) return '<span class="' + cls + ' icon--blank" aria-hidden="true">' + esc(String(game.title).charAt(0)) + "</span>";
@@ -83,7 +71,6 @@
     });
   }, 320);
 
-  /* ---- MEMORY CARD (home) ----------------------------------------------- */
   function buildSlots() {
     var cfg = SITE.memoryCard || {};
     var total = cfg.blocks || 15;
@@ -101,14 +88,12 @@
     return { slots: slots, free: total - used - (cfg.teaserSlots || 0), total: total };
   }
 
-  // Memory card strip: 15 tiny blocks, used ones lit.
   function cellHTML(s) {
     var inner = s.type === "game" ? iconImg(s.game, "mc__icon") :
       s.type === "teaser" ? "?" : s.type === "corrupt" ? "#" : "";
     return '<li class="mc__c mc__c--' + s.type + '">' + inner + "</li>";
   }
 
-  // Disc select reel: every game, then teaser and empty trays.
   function buildReel() {
     var reel = GAMES.map(function (g) { return { type: "game", game: g }; });
     var teasers = (SITE.memoryCard && SITE.memoryCard.teaserSlots) || 0;
@@ -157,7 +142,6 @@
       '<p class="stage__tag">Empty. Room for the next one.</p>';
   }
 
-  // Static noise texture for trays without a cover.
   function noiseTex(seed) {
     var c = document.createElement("canvas"); c.width = c.height = 24;
     var x = c.getContext("2d"), cs = getComputedStyle(document.documentElement);
@@ -233,7 +217,6 @@
     var cv = $(".stage__cv", screen);
     var sel = -1, stopScramble = function () {}, stage = null, tileScr = [];
 
-    // Scramble the COMING SOON tile titles.
     $$(".tile [data-scramble]", screen).forEach(function (el) { tileScr.push(FX.scramble(el, el.dataset.scramble, 0.15)); });
     onCleanup(function () { tileScr.forEach(function (f) { f(); }); stopScramble(); if (stage) stage.stop(); });
 
@@ -267,7 +250,7 @@
       el.addEventListener("mouseenter", function () { if (sel !== i) { FX.sound.move(); select(i); } });
       el.addEventListener("focus", function () { select(i); });
       el.addEventListener("click", function (e) {
-        if (reel[i].type === "game") { FX.sound.select(); return; } // the link loads the game
+        if (reel[i].type === "game") { FX.sound.select(); return; }
         e.preventDefault();
         if (reel[i].type === "teaser") FX.sound.glitch(); else FX.sound.error();
         select(i);
@@ -297,7 +280,6 @@
     return { title: SITE.name + " — disc select", focus: tiles[start] };
   }
 
-  /* ---- GAME PAGE -------------------------------------------------------- */
   function youtubeId(src) {
     if (!src) return null;
     var m = String(src).match(/(?:v=|youtu\.be\/|embed\/|shorts\/)([\w-]{11})(?![\w-])/) || String(src).match(/^([\w-]{11})$/);
@@ -449,7 +431,6 @@
     return { title: g.title + " — " + SITE.name, focus: $(".gm__title", screen), keepScroll: !!sectionId };
   }
 
-  // End-of-page navigation: back to the card, plus previous/next disc.
   function discNav(g) {
     var i = GAMES.indexOf(g), n = GAMES.length;
     var out = '<a class="btn" href="#/"><i class="pad pad--tri"></i>MEMORY CARD</a>';
@@ -470,7 +451,6 @@
   }
 
   function wireGame(g) {
-    // Section menu: scroll without re-rendering, keep the URL shareable.
     $$("[data-go]", screen).forEach(function (a) {
       a.addEventListener("click", function (e) {
         e.preventDefault();
@@ -480,7 +460,6 @@
       });
     });
 
-    // Scroll-spy for the menu cursor.
     var menuLinks = $$(".gm__nav [data-go]", screen);
     if ("IntersectionObserver" in window && menuLinks.length) {
       var io = new IntersectionObserver(function (entries) {
@@ -498,7 +477,6 @@
       onCleanup(function () { io.disconnect(); });
     }
 
-    // Trailer facade: no YouTube iframe until asked for.
     var facade = $(".trailer__facade", screen);
     if (facade) facade.addEventListener("click", function () {
       var box = facade.parentNode;
@@ -511,7 +489,6 @@
         box.innerHTML = '<video' + (g.trailer.poster ? ' poster="' + esc(g.trailer.poster) + '"' : "") +
           ' controls autoplay playsinline preload="auto">' + srcs + "</video>";
         var vid = $("video", box);
-        // The trailer has its own sound: pause the site music while it plays.
         vid.addEventListener("play", function () { FX.music.pause(); });
         vid.addEventListener("pause", function () { FX.music.resume(); });
         vid.addEventListener("ended", function () { FX.music.resume(); });
@@ -530,8 +507,6 @@
         'allow="autoplay; encrypted-media; picture-in-picture; fullscreen" allowfullscreen loading="lazy"></iframe>';
     });
 
-    // Screenshot viewer: strip picks, big image opens the lightbox.
-    // Strip thumbnails and the hero backdrop get the PS1 15-bit treatment.
     var psx = g.psxThumbs != null ? g.psxThumbs : SITE.psxThumbs !== false;
     function psxImg(img, w) {
       if (!psx) return;
@@ -563,7 +538,6 @@
     });
     if (big) big.addEventListener("click", function () { Lightbox.open(g, shown); });
 
-    // CONTINUE? countdown, 9 to 0, then round again.
     var count = $(".cont__count", screen);
     if (count && !FX.reduced()) {
       var c = 9;
@@ -576,7 +550,6 @@
       onCleanup(function () { clearInterval(cd); });
     }
 
-    // Level-progress meter in the section bar.
     var cells = $$(".prog li", screen);
     if (cells.length) {
       var body = $(".gm__body", screen), ticking = false, lastLit = -1;
@@ -595,7 +568,6 @@
       upd();
     }
 
-    // Email signup.
     var form = $(".save", screen);
     if (form) form.addEventListener("submit", function (e) {
       var input = $(".save__in", form), status = $(".save__status", form), bar = $(".save__bar", form);
@@ -607,7 +579,7 @@
         input.focus();
         return;
       }
-      if (SITE.signupEndpoint) return; // real endpoint: let the browser post it
+      if (SITE.signupEndpoint) return;
       e.preventDefault();
       FX.sound.select();
       $$("input, button", form).forEach(function (el) { el.disabled = true; });
@@ -626,7 +598,6 @@
     });
   }
 
-  /* ---- ABOUT / SYSTEM CONFIG -------------------------------------------- */
   function volRow(key, label, v) {
     return '<li><span>' + label + '</span><span class="vol">' +
       '<button class="opt" type="button" data-vol="' + key + '" data-d="-1" aria-label="' + label + ' down">&lt;</button>' +
@@ -705,7 +676,6 @@
     return { title: "System config — " + SITE.name, crumb: "SYSTEM CONFIG", focus: $(".config__h", screen) };
   }
 
-  /* ---- 404 -------------------------------------------------------------- */
   function renderMissing() {
     FX.sound.error();
     screen.innerHTML =
@@ -718,7 +688,6 @@
     return { title: "Disc read error — " + SITE.name, crumb: "ERROR", focus: $(".missing__h", screen) };
   }
 
-  /* ---- LIGHTBOX --------------------------------------------------------- */
   var Lightbox = (function () {
     var dlg = $("#lightbox"), img = $(".lightbox__img", dlg), cap = $(".lightbox__cap", dlg);
     var list = [], i = 0, x0 = null;
@@ -753,7 +722,6 @@
     };
   })();
 
-  /* ---- LOADER (spinning cover, between screens) ------------------------- */
   var loaderEl = $("#loader");
   var loaderQuad = null;
   function loadDisc(g) {
@@ -776,7 +744,7 @@
       }
       img.onload = go; img.onerror = go;
       img.src = g.cover || "";
-      setTimeout(go, 250); // never wait long on a slow cover
+      setTimeout(go, 250);
     });
   }
   function solidTex() {
@@ -787,7 +755,6 @@
     return c;
   }
 
-  /* ---- ROUTER ----------------------------------------------------------- */
   function parse() {
     var parts = (location.hash || "#/").replace(/^#\/?/, "").split("/").filter(Boolean);
     if (!parts.length) return { name: "home" };
@@ -803,7 +770,6 @@
     var game = r.name === "game" ? gameById(r.id) : null;
     if (r.name === "game" && !game) r = { name: "missing" };
 
-    // Same game, different section: just scroll.
     if (r.name === "game" && current.name === "game" && current.id === r.id) {
       if (r.section) goSection(r.section, true);
       return;
@@ -835,13 +801,11 @@
       document.body.dataset.screen = r.name;
       if (!res.keepScroll) window.scrollTo(0, 0);
       if (res.focus) res.focus.focus({ preventScroll: true });
-      // If the hash changed while we were loading, catch up.
       var now = parse();
       if (now.name !== raw.name || now.id !== raw.id) route();
     });
   }
 
-  /* ---- GLOBAL CONTROLS -------------------------------------------------- */
   var sndBtn = $("#snd");
   function setSound(on) {
     FX.sound.set(on);
@@ -867,14 +831,13 @@
   $("b", musBtn).textContent = FX.music.isOn() ? "ON" : "OFF";
   musBtn.addEventListener("click", function () { setMusic(!FX.music.isOn()); });
 
-  // A light tick when the pointer lands on anything clickable.
   var hovered = null;
   document.addEventListener("pointerover", function (e) {
     if (e.pointerType === "touch") return;
     var el = e.target.closest("a, button, input, [role=button], .hit");
     if (el === hovered) return;
     hovered = el;
-    if (!el || el.classList.contains("tile")) return;          // tiles have their own sound
+    if (!el || el.classList.contains("tile")) return;
     var inBar = el.closest(".bar, .gm__nav");
     FX.sound.hover(inBar ? 1900 : 1650);
   });
@@ -885,7 +848,6 @@
     if (current.name && current.name !== "home") { FX.sound.back(); location.hash = "#/"; }
   });
 
-  // Little click on every link/button, if sound is on.
   document.addEventListener("click", function (e) {
     var a = e.target.closest("a[href^='#/']");
     if (a && !a.dataset.go && !a.classList.contains("slot")) {
@@ -895,7 +857,6 @@
 
   window.addEventListener("hashchange", route);
 
-  /* ---- POWER ON --------------------------------------------------------- */
   var bootEl = $("#boot");
   if (document.documentElement.classList.contains("no-boot")) {
     bootEl.hidden = true;

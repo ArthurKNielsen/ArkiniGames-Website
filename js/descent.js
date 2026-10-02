@@ -1,12 +1,3 @@
-/* ==========================================================================
-   ARKINI SYSTEM — DESCENT MODE
-   Optional per-game effect: scrolling a game page = falling down a shaft.
-   A fixed low-res canvas renders the shaft behind the page; each section of
-   the page is a "sector" with its own wall palette. Eyes, sticks and blood
-   fall past, a depth counter runs, a quiet click ticks as you scroll, and you hit
-   the bottom with a thud. Turn it on with `descent: { ... }` in games.js.
-   ========================================================================== */
-
 (function () {
   "use strict";
   var FX = window.FX;
@@ -20,12 +11,11 @@
     alarm:   { a:[64,22,18],    b:[46,15,12],   m:[18,5,4],    f:[4,1,1], alarm: true },
     bottom:  { a:[76,64,54],    b:[60,50,44],   m:[30,24,20],  f:[40,10,8] }
   };
-  var DIM = 0.42, SAT = 0.6;      // keep the shaft quiet behind the page
+  var DIM = 0.42, SAT = 0.6;
   var BAY = [0,8,2,10,12,4,14,6,3,11,1,9,15,7,13,5];
   function lerp(a, b, t) { return [a[0]+(b[0]-a[0])*t, a[1]+(b[1]-a[1])*t, a[2]+(b[2]-a[2])*t]; }
   function hash(x, y) { var h = (x * 374761393 + y * 668265263) | 0; h = (h ^ (h >>> 13)) * 1274126177; return ((h ^ (h >>> 16)) >>> 0) / 4294967295; }
 
-  /* opts: { sectors: [{ el, name, look }], depth, onSector(i) } */
   FX.descent = function (opts) {
     var reduce = FX.reduced();
     var cv = document.createElement("canvas");
@@ -49,7 +39,6 @@
     function onMove(e) { mouse.x = e.clientX / innerWidth; mouse.y = e.clientY / innerHeight; }
     addEventListener("pointermove", onMove);
 
-    /* sound: a quiet click every bit you scroll (the site's UI tick), and a thud at the bottom */
     var actx = null;
     function startAudio() {
       if (actx || !FX.sound.isOn()) return;
@@ -75,7 +64,7 @@
     var sec = opts.sectors, travel = 0, lastY = scrollY, vel = 0, cur = -1, hitBottom = false, raf = 0, t0 = performance.now(), last = 0;
     function frame(now) {
       raf = requestAnimationFrame(frame);
-      if (now - last < 33) return; last = now;            // ~30fps, PS1-ish
+      if (now - last < 33) return; last = now;
       var t = (now - t0) / 1000;
       var dy = scrollY - lastY; lastY = scrollY;
       vel = vel * 0.8 + Math.abs(dy) * 0.2;

@@ -1,9 +1,3 @@
-/* ==========================================================================
-   ARKINI SYSTEM — FX
-   PS1 affine-warped quads, boot sequence, 15-bit dither for thumbnails.
-   Sound and music live in sound.js. No dependencies.
-   ========================================================================== */
-
 (function () {
   "use strict";
 
@@ -16,11 +10,6 @@
     set: function (k, v) { try { localStorage.setItem(k, v); } catch (e) {} }
   };
 
-  /* ---- AFFINE QUAD ------------------------------------------------------
-     The PS1 had no perspective-correct texturing and snapped vertices to
-     whole pixels. We project a flat quad in 3D, round its corners to the
-     pixel grid, then texture two triangles with plain affine maps.
-     That is exactly where the warp along the diagonal comes from. */
   function texTri(c, img, p0, p1, p2, u0, u1, u2) {
     var den = (u0[0] - u2[0]) * (u1[1] - u2[1]) - (u1[0] - u2[0]) * (u0[1] - u2[1]);
     if (!den) return;
@@ -47,9 +36,9 @@
     var dist = 260, fov = 260;
     return [[-1, -1], [1, -1], [1, 1], [-1, 1]].map(function (k) {
       var x = k[0] * qw / 2, y = k[1] * qh / 2, z = 0, t;
-      t = x * cr - y * sr; y = x * sr + y * cr; x = t;          // roll
-      t = x * cy + z * sy; z = -x * sy + z * cy; x = t;         // yaw
-      t = y * cp - z * sp; z = y * sp + z * cp; y = t;          // pitch
+      t = x * cr - y * sr; y = x * sr + y * cr; x = t;
+      t = x * cy + z * sy; z = -x * sy + z * cy; x = t;
+      t = y * cp - z * sp; z = y * sp + z * cp; y = t;
       var s = fov / (z + dist);
       return [Math.round(cw / 2 + x * s), Math.round(ch * (oy || 0.5) + y * s)];
     });
@@ -61,21 +50,19 @@
     texTri(c, tex, pts[0], pts[2], pts[3], [0, 0], [w, h], [0, h]);
   }
 
-  /* Low-poly perspective floor, pixel-snapped: the "stage" under a showcase
-     object, like a PS1 demo-disc menu. Lines scroll toward the camera. */
   FX.floor = function (c, t, cw, ch, col) {
     var hz = Math.round(ch * 0.58), vx = cw / 2, i, y, z;
     c.fillStyle = col.far;
     c.fillRect(0, hz, cw, ch - hz);
     c.fillStyle = col.line;
-    for (i = -14; i <= 14; i++) {                     // rails to the vanishing point
+    for (i = -14; i <= 14; i++) {
       var bx = vx + i * cw * 0.16;
       for (y = hz; y < ch; y += 1) {
         var k = (y - hz) / (ch - hz);
         c.fillRect(Math.round(vx + (bx - vx) * k), y, 1, 1);
       }
     }
-    var off = (t * 0.6) % 1;                            // cross lines, moving
+    var off = (t * 0.6) % 1;
     for (i = 0; i < 12; i++) {
       z = 1 + (i - off) * 0.9;
       if (z <= 0.2) continue;
@@ -86,10 +73,6 @@
     c.fillRect(0, hz, cw, 1);
   };
 
-  /* Animate a texture on a low-res canvas at ~20fps, like a real PS1 menu.
-     mode "sway": slow wobble (logo). mode "spin": full turn (loading disc).
-     mode "show": wide showcase wobble (home stage). opts.before(ctx, t, w, h)
-     draws a background each frame; opts.oy moves the object up or down. */
   FX.quad = function (canvas, tex, opts) {
     opts = opts || {};
     var c = canvas.getContext("2d");
@@ -122,7 +105,7 @@
     function loop(now) {
       if (!running) return;
       raf = requestAnimationFrame(loop);
-      if (now - last < 50) return; // ~20fps on purpose
+      if (now - last < 50) return;
       last = now;
       frame((now - t0) / 1000);
     }
@@ -139,7 +122,6 @@
     };
   };
 
-  /* Build the studio logo texture from the pixel font (or a supplied image). */
   FX.logoTexture = function (site, theme) {
     if (site.logoImage) {
       return new Promise(function (res) {
@@ -164,7 +146,7 @@
     c = t.getContext("2d");
     c.font = "700 32px Silkscreen, monospace";
     c.textBaseline = "top";
-    c.fillStyle = theme.primary; c.fillText("ARKINI", 3, 3);   // misregistered red layer
+    c.fillStyle = theme.primary; c.fillText("ARKINI", 3, 3);
     c.fillStyle = theme.ink; c.fillText("ARKINI", 1, 1);
     c.fillStyle = theme.primary; c.fillRect(1, 35, w - 2, 10);
     c.font = "400 8px Silkscreen, monospace";
@@ -173,8 +155,6 @@
     return t;
   }
 
-  /* ---- BOOT SEQUENCE ----------------------------------------------------
-     ~3.5s, plays once per session, any key/tap skips. */
   FX.boot = function (root, data) {
     return new Promise(function (resolve) {
       var lines = root.querySelector(".boot__lines");
@@ -233,10 +213,6 @@
     });
   };
 
-  /* ---- 15-BIT DITHER ----------------------------------------------------
-     Downscale a screenshot and push it through the PS1's 5-bit-per-channel
-     colour with a 4x4 ordered dither. Returns a data URL, or null if the
-     image can't be read (e.g. opened from file://). */
   var BAYER = [0, 8, 2, 10, 12, 4, 14, 6, 3, 11, 1, 9, 15, 7, 13, 5];
   FX.psxify = function (img, targetW, levels) {
     try {
@@ -264,7 +240,6 @@
     }
   };
 
-  /* ---- GLITCH TEXT ------------------------------------------------------ */
   var GLYPHS = "#%&@$?!/\\<>=+*01";
   FX.scramble = function (el, text, rate) {
     if (FX.reduced()) { el.textContent = text; return function () {}; }

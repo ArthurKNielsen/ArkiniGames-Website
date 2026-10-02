@@ -1,9 +1,3 @@
-/* ==========================================================================
-   ARKINI SYSTEM — STYLES
-   Colours come from CSS variables set by js/games.js (site theme, or the
-   current game's theme). Hard edges only: no radii, no shadows, no blur.
-   ========================================================================== */
-
 @font-face {
   font-family: "Silkscreen";
   src: url("../assets/fonts/silkscreen-400-latin.woff2") format("woff2");
@@ -78,7 +72,6 @@ ol, ul { list-style: none; margin: 0; padding: 0; }
 .is-ok { color: var(--ok); }
 .is-bad { color: var(--bad); }
 
-/* ---- PAD GLYPHS (cross / triangle) -------------------------------------- */
 .pad {
   display: inline-block; width: .75em; height: .75em; margin-right: .5em;
   background: currentColor; vertical-align: -.05em; flex: none;
@@ -86,7 +79,6 @@ ol, ul { list-style: none; margin: 0; padding: 0; }
 .pad--x { clip-path: polygon(20% 0, 50% 30%, 80% 0, 100% 20%, 70% 50%, 100% 80%, 80% 100%, 50% 70%, 20% 100%, 0 80%, 30% 50%, 0 20%); }
 .pad--tri { clip-path: polygon(50% 0, 100% 100%, 0 100%, 0 82%, 50% 82%, 50% 0, 50% 22%, 16% 82%, 84% 82%, 50% 22%); }
 
-/* ---- BUTTONS: bevelled, never rounded ----------------------------------- */
 .btn {
   display: inline-flex; align-items: center;
   padding: 10px 16px 9px;
@@ -100,7 +92,6 @@ ol, ul { list-style: none; margin: 0; padding: 0; }
 .btn--big { font-size: 24px; padding: 16px 22px 14px; }
 .btn[disabled] { opacity: .5; pointer-events: none; }
 
-/* ---- CONSOLE SHELL ------------------------------------------------------ */
 .console { min-height: 100vh; min-height: 100dvh; display: flex; flex-direction: column; }
 
 .bar {
@@ -154,13 +145,10 @@ ol, ul { list-style: none; margin: 0; padding: 0; }
 }
 @media (max-width: 699px) {
   .bar--bottom { display: none; }
-  .bar__home { display: none; }   /* HOME in the nav does the same job */
+  .bar__home { display: none; }
   .bar { padding-left: 0; }
 }
 
-/* ---- HOME: DISC SELECT ---------------------------------------------------
-   Header strip, a 3D stage for the selected disc, a reel of discs, and the
-   memory card as a capacity bar. */
 .hub { display: grid; gap: 28px; max-width: 1320px; }
 .hub > * { min-width: 0; }
 
@@ -272,7 +260,6 @@ ol, ul { list-style: none; margin: 0; padding: 0; }
 .ticker__run span { padding-right: 2em; }
 @keyframes crawl { to { transform: translateX(-50%); } }
 
-/* ---- GAME PAGE: TITLE SCREEN ------------------------------------------- */
 .gm { display: block; max-width: 1320px; }
 .gm__hero {
   position: relative; isolation: isolate;
@@ -282,7 +269,7 @@ ol, ul { list-style: none; margin: 0; padding: 0; }
 }
 .gm__bg { position: absolute; inset: 0; z-index: -1; overflow: hidden; }
 .gm__bg img { width: 100%; height: 100%; object-fit: cover; opacity: .55; }
-.gm__bg::after { /* hard 2x2 dither instead of a gradient fade */
+.gm__bg::after {
   content: ""; position: absolute; inset: 0;
   background: repeating-conic-gradient(var(--bg) 0 25%, transparent 0 50%) 0 0 / 4px 4px;
   opacity: .75;
@@ -373,14 +360,12 @@ ol, ul { list-style: none; margin: 0; padding: 0; }
   .sec__n { font-size: 48px; color: var(--primary); text-shadow: none; }
 }
 
-/* end-of-page disc navigation */
 .game__foot {
   display: flex; flex-wrap: wrap; gap: 8px;
   margin-top: 64px; padding-top: 20px; border-top: 2px solid var(--line);
 }
 .game__foot .btn--primary { margin-left: auto; }
 
-/* screenshots: big viewer + strip */
 .viewer { display: grid; gap: 8px; }
 .viewer__big { position: relative; display: block; width: 100%; padding: 0; border: 2px solid var(--line); background: var(--black); }
 .viewer__big img { width: 100%; aspect-ratio: 16 / 9; object-fit: cover; }
@@ -395,7 +380,6 @@ ol, ul { list-style: none; margin: 0; padding: 0; }
 .strip__btn:hover, .strip__btn:focus-visible { opacity: 1; outline: none; border-color: var(--dim); }
 .strip__btn.is-on { opacity: 1; border-color: var(--accent); }
 
-/* features: inventory slots */
 .inv { display: grid; gap: 6px; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); }
 .inv__slot {
   position: relative; padding: 34px 14px 14px;
@@ -410,7 +394,6 @@ ol, ul { list-style: none; margin: 0; padding: 0; }
 .inv__slot:hover { border-color: var(--accent); }
 .inv__slot:hover .inv__n { background: var(--accent); color: var(--bg); }
 
-/* demo: CONTINUE? screen */
 .cont {
   display: grid; justify-items: start; gap: 8px; padding: 28px 22px 24px;
   background: var(--black); border: 2px solid var(--primary);
@@ -421,7 +404,6 @@ ol, ul { list-style: none; margin: 0; padding: 0; }
 .cont__btns { display: flex; flex-wrap: wrap; gap: 8px; }
 .cont__meta { margin: 8px 0 0; color: var(--dim); }
 
-/* trailer */
 .trailer { position: relative; aspect-ratio: 16 / 9; background: var(--black); border: 2px solid var(--line); }
 .trailer iframe, .trailer video { position: absolute; inset: 0; width: 100%; height: 100%; border: 0; background: var(--black); }
 .trailer__more { margin: 10px 0 0; }
@@ -446,7 +428,6 @@ ol, ul { list-style: none; margin: 0; padding: 0; }
 .devlog p { max-width: 48ch; }
 .devlog__btns { display: flex; flex-wrap: wrap; gap: 8px; }
 
-/* signup */
 .save { max-width: 560px; }
 .save__label { display: block; font: 400 8px/1 var(--px); color: var(--dim); letter-spacing: .12em; margin: 14px 0 8px; }
 .save__row { display: flex; gap: 0; }
@@ -463,7 +444,6 @@ ol, ul { list-style: none; margin: 0; padding: 0; }
 .save__bar i.on { background: var(--accent); border-color: var(--accent); }
 .save__status { margin-top: 10px; min-height: 1.2em; font: 400 16px/1.3 var(--px); }
 
-/* ---- SYSTEM CONFIG (about) ---------------------------------------------- */
 .config { display: grid; gap: 28px; max-width: 1100px; padding-top: 2vh; }
 .config__h { font: 700 clamp(24px, 6vw, 48px)/1 var(--px); text-shadow: var(--chroma); }
 .config__table { display: grid; grid-template-columns: auto 1fr; gap: 0; margin: 0; align-self: start; }
@@ -501,7 +481,6 @@ ol, ul { list-style: none; margin: 0; padding: 0; }
   .config__back { grid-area: back; }
 }
 
-/* ---- 404 ----------------------------------------------------------------- */
 .missing { max-width: 640px; padding-top: 10vh; }
 .missing__k { font: 400 8px/1 var(--px); color: var(--bad); margin-bottom: 12px; }
 .missing__h { font: 700 clamp(32px, 9vw, 72px)/.95 var(--px); text-shadow: var(--chroma); margin-bottom: 16px; }
@@ -510,7 +489,6 @@ ol, ul { list-style: none; margin: 0; padding: 0; }
 .noscript h1 { font: 700 32px/1 var(--px); margin-bottom: 12px; }
 .noscript li { margin: 6px 0; }
 
-/* ---- BOOT ---------------------------------------------------------------- */
 .boot {
   position: fixed; inset: 0; z-index: 90;
   background: var(--black); color: var(--ink);
@@ -533,7 +511,6 @@ ol, ul { list-style: none; margin: 0; padding: 0; }
 .boot--out { animation: fadeout .26s steps(4) forwards; }
 .js:not(.no-boot) .console { visibility: hidden; }
 
-/* ---- LOADER -------------------------------------------------------------- */
 .loader {
   position: fixed; inset: 0; z-index: 80; display: none;
   background: var(--bg);
@@ -545,7 +522,6 @@ ol, ul { list-style: none; margin: 0; padding: 0; }
 .loader__txt { font: 400 16px/1 var(--px); color: var(--ink); margin-bottom: 18px; }
 .dots::after { content: ""; animation: dots .9s steps(4) infinite; }
 
-/* ---- LIGHTBOX ------------------------------------------------------------ */
 .lightbox {
   width: 100vw; height: 100vh; height: 100dvh; max-width: none; max-height: none;
   margin: 0; padding: 56px 8px 16px; border: 0;
@@ -572,8 +548,6 @@ ol, ul { list-style: none; margin: 0; padding: 0; }
   .lightbox__img { max-height: calc(100dvh - 180px); }
 }
 
-/* ---- CRT OVERLAY ---------------------------------------------------------
-   Scanlines + noise + a slow rolling band. Hard-stop patterns only. */
 .crt { position: fixed; inset: 0; z-index: 100; pointer-events: none; animation: flicker 4s steps(1) infinite; }
 .crt::before {
   content: ""; position: absolute; inset: 0;
@@ -591,7 +565,6 @@ ol, ul { list-style: none; margin: 0; padding: 0; }
 }
 .crt-off .crt { display: none; }
 
-/* ---- KEYFRAMES ----------------------------------------------------------- */
 @keyframes blink { 50% { opacity: 0; } }
 @keyframes appear { from { opacity: 0; } }
 @keyframes fadeout { to { opacity: 0; visibility: hidden; } }
@@ -603,20 +576,17 @@ ol, ul { list-style: none; margin: 0; padding: 0; }
 }
 @keyframes roll { from { transform: translateY(-20vh); } to { transform: translateY(120vh); } }
 @keyframes flicker { 0% { opacity: 1; } 47% { opacity: .94; } 48% { opacity: 1; } 83% { opacity: .97; } 84% { opacity: 1; } }
-/* vertex-snap jitter: whole pixels only */
 @keyframes jitter {
   0% { transform: translate(0, 0); } 12% { transform: translate(1px, 0); } 13% { transform: translate(0, 0); }
   55% { transform: translate(0, 1px); } 57% { transform: translate(-1px, 0); } 58% { transform: translate(0, 0); }
 }
 
-/* ---- REDUCED MOTION: no boot, no flicker, no jitter ---------------------- */
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after { animation: none !important; transition: none !important; scroll-behavior: auto !important; }
   .boot, .loader { display: none !important; }
   .crt__roll { display: none; }
 }
 
-/* ---- DESCENT MODE (game pages with descent: {...}) ---------------------- */
 .descent-shaft {
   position: fixed; inset: 0; width: 100vw; height: 100vh; z-index: 0; pointer-events: none;
   image-rendering: pixelated; opacity: .9;
