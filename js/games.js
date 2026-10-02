@@ -145,6 +145,13 @@ window.ARKINI = {
         discord: "https://discord.com/invite/bYdaGM7nPh"
       },
 
+      // Descent mode: scrolling the page = falling down a shaft. Each section is a
+      // sector with its own walls: surface, stone, fog, blood, corrupt, alarm, bottom.
+      descent: {
+        depth: 6666,
+        sectors: { hero: "surface", trailer: "fog", screens: "blood", features: "stone", demo: "alarm", devlog: "corrupt", signup: "bottom", bottom: "bottom" }
+      },
+
       // Background music on this game's page. Built-in synth settings
       // ({ bpm, root (MIDI note), drums }) or a file: "assets/music/kravn.ogg"
       music: { bpm: 100, root: 45, drums: 1 },

@@ -73,6 +73,7 @@ Games show up on the memory card in the order they're listed.
 | `links.devlog` / `links.devlogText` | Devlog link + one line about it. |
 | `signup.pitch` | Line above the email form. |
 | `music` | Background music for this game's page: either built-in synth settings like `{ bpm: 100, root: 45, drums: 1 }` or your own looping file, e.g. `"assets/music/kravn.ogg"`. |
+| `descent` | Optional. Turns the game page into a fall down a PS1 shaft: `{ depth: 6666, sectors: { hero: "surface", trailer: "fog", screens: "blood", ... } }`. Each page section gets a wall style (`surface`, `stone`, `fog`, `blood`, `corrupt`, `alarm`, `bottom`), a depth counter runs, eyes and sticks fall past, and you land on a wishlist card at the bottom. |
 | `psxThumbs` | Optional `false` to turn off the dithered thumbnails for this game. |
 
 **Leaving a field out hides that part of the page.** No `trailer` means no

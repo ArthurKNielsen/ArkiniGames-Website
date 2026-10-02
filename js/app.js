@@ -417,12 +417,34 @@
           "<ol>" + secs.map(function (s) {
             return '<li><a href="#/game/' + esc(g.id) + "/" + s[0] + '" data-go="' + s[0] + '">' + s[1] + "</a></li>";
           }).join("") + "</ol>" +
+          (g.descent ? '<span class="depth" aria-hidden="true">DEPTH <b>0000</b>M</span>' : "") +
           '<div class="prog" aria-hidden="true"><span>PROGRESS</span><ol>' + new Array(16).join("<li></li>") + "</ol></div>" +
         "</nav>" : "") +
-        '<div class="gm__body">' + html.join("") + discNav(g) + "</div>" +
+        '<div class="gm__body">' + html.join("") +
+          (g.descent ? '<div class="abyss"><p class="abyss__d">DEPTH ' + (g.descent.depth || 6666) + 'M &middot; YOU HIT THE BOTTOM</p>' +
+            '<p class="abyss__h">THE DESCENT BEGINS</p>' +
+            (links.demo ? '<a class="btn btn--big btn--primary" href="' + esc(links.demo) + '" target="_blank" rel="noopener"><i class="pad pad--x"></i>' + esc(links.demoLabel || "PLAY") + "</a>" : "") +
+            "</div>" : "") +
+          discNav(g) + "</div>" +
       "</article>";
 
     wireGame(g);
+    if (g.descent && FX.descent) {
+      var looks = g.descent.sectors || {};
+      var list = [{ el: $(".gm__hero", screen), name: "SURFACE", look: looks.hero || "surface" }];
+      $$(".sec", screen).forEach(function (el) {
+        list.push({ el: el, name: ($(".sec__h span:last-child", el) || {}).textContent || "", look: looks[el.dataset.sec] || "stone" });
+      });
+      var foot = $(".game__foot", screen);
+      if (foot) list.push({ el: foot, name: "THE BOTTOM", look: looks.bottom || "bottom" });
+      var dEl = $(".depth b", screen);
+      var stopDescent = FX.descent({
+        sectors: list, maxDepth: g.descent.depth || 6666,
+        depth: function (d) { if (dEl) dEl.textContent = String(d).padStart(4, "0"); },
+        onSector: function (i) { if (i > 0) FX.sound.cut(); }
+      });
+      onCleanup(stopDescent);
+    }
     if (sectionId) requestAnimationFrame(function () { goSection(sectionId, false); });
     return { title: g.title + " — " + SITE.name, focus: $(".gm__title", screen), keepScroll: !!sectionId };
   }
